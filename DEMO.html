@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Data - Quick Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #2E7D32; margin-bottom: 30px; text-align: center; }
+        .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #2E7D32; margin-bottom: 15px; border-bottom: 2px solid #2E7D32; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #2E7D32; color: white; }
+        tr:hover { background: #f9f9f9; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-pending { background: #FFF3CD; color: #856404; }
+        .badge-shortlisted { background: #D1ECF1; color: #0C5460; }
+        .badge-hired { background: #D4EDDA; color: #155724; }
+        .badge-rejected { background: #F8D7DA; color: #721C24; }
+        .score { font-weight: bold; color: #2E7D32; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Internship Matching Platform - Data Demo</h1>
+
+        <div class="section">
+            <h2>📊 Companies (20)</h2>
+            <div id="companies-loading" class="loading">Loading companies...</div>
+            <table id="companies-table" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Company Name</th>
+                        <th>Industry</th>
+                        <th>Location</th>
+                        <th>Website</th>
+                    </tr>
+                </thead>
+                <tbody id="companies-body"></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>👨‍🎓 Students (20)</h2>
+            <div id="students-loading" class="loading">Loading students...</div>
+            <table id="students-table" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>University</th>
+                        <th>Degree</th>
+                        <th>Graduation Year</th>
+                        <th>Skills</th>
+                    </tr>
+                </thead>
+                <tbody id="students-body"></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>💼 Internships (30)</h2>
+            <div id="internships-loading" class="loading">Loading internships...</div>
+            <table id="internships-table" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                        <th>Stipend</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="internships-body"></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📝 Applications (50 with AI Scores)</h2>
+            <div id="applications-loading" class="loading">Loading applications...</div>
+            <table id="applications-table" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Internship</th>
+                        <th>AI Match Score</th>
+                        <th>Status</th>
+                        <th>Applied Date</th>
+                    </tr>
+                </thead>
+                <tbody id="applications-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Login first to get token
+        async function login() {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'admin@internship.com', password: 'password123' })
+            });
+            const data = await response.json();
+            return data.token;
+        }
+
+        async function fetchData(endpoint, token) {
+            const response = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            return await response.json();
+        }
+
+        async function loadAllData() {
+            try {
+                const token = await login();
+
+                // Load Companies
+                const companies = await fetchData('admin/companies', token);
+                document.getElementById('companies-loading').style.display = 'none';
+                document.getElementById('companies-table').style.display = 'table';
+                const companiesBody = document.getElementById('companies-body');
+                companies.forEach((c, i) => {
+                    companiesBody.innerHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${c.companyName}</strong></td>
+                            <td>${c.industry}</td>
+                            <td>${c.location}</td>
+                            <td>${c.website || 'N/A'}</td>
+                        </tr>
+                    `;
+                });
+
+                // Load Students
+                const students = await fetchData('admin/students', token);
+                document.getElementById('students-loading').style.display = 'none';
+                document.getElementById('students-table').style.display = 'table';
+                const studentsBody = document.getElementById('students-body');
+                students.forEach((s, i) => {
+                    const skills = s.skills ? s.skills.map(sk => sk.name).slice(0, 3).join(', ') : 'N/A';
+                    studentsBody.innerHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${s.fullName}</strong></td>
+                            <td>${s.university}</td>
+                            <td>${s.degree}</td>
+                            <td>${s.graduationYear}</td>
+                            <td>${skills}</td>
+                        </tr>
+                    `;
+                });
+
+                // Load Internships
+                const internships = await fetchData('internships', token);
+                document.getElementById('internships-loading').style.display = 'none';
+                document.getElementById('internships-table').style.display = 'table';
+                const internshipsBody = document.getElementById('internships-body');
+                internships.forEach((intern, i) => {
+                    const company = companies.find(c => c._id === intern.company);
+                    internshipsBody.innerHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${intern.title}</strong></td>
+                            <td>${company ? company.companyName : 'N/A'}</td>
+                            <td>${intern.type}</td>
+                            <td>${intern.duration}</td>
+                            <td>₹${intern.stipend.toLocaleString()}</td>
+                            <td>${intern.location}</td>
+                        </tr>
+                    `;
+                });
+
+                // Load Applications
+                const applications = await fetchData('admin/applications', token);
+                document.getElementById('applications-loading').style.display = 'none';
+                document.getElementById('applications-table').style.display = 'table';
+                const applicationsBody = document.getElementById('applications-body');
+                applications.slice(0, 50).forEach((app, i) => {
+                    const statusClass = app.status.toLowerCase().replace(' ', '-');
+                    const date = new Date(app.appliedAt).toLocaleDateString();
+                    applicationsBody.innerHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${app.studentDetails?.fullName || 'N/A'}</td>
+                            <td>${app.internshipDetails?.title || 'N/A'}</td>
+                            <td><span class="score">${app.aiMatchScore}%</span></td>
+                            <td><span class="badge badge-${statusClass}">${app.status}</span></td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading data. Make sure backend is running on http://localhost:5000');
+            }
+        }
+
+        loadAllData();
+    </script>
+</body>
+</html>

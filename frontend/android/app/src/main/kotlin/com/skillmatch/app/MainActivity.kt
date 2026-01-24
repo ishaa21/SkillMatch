@@ -1,0 +1,5 @@
+package com.skillmatch.app
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()

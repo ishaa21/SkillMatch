@@ -1,0 +1,544 @@
+﻿
+  Running Gradle task 
+'assembleDebug'...           
+                  11.6s
+  ΓêÜ Built build\app\outputs
+\flutter-apk\app-debug.apk
+  Installing build\app\output
+s\flutter-apk\app-debug.apk..
+.          33.2s
+> E/AndroidRuntime(11347): 
+FATAL EXCEPTION: main
+> E/AndroidRuntime(11347): 
+Process: com.skillmatch.app, 
+PID: 11347
+> E/AndroidRuntime(11347): 
+java.lang.RuntimeException: 
+Unable to instantiate 
+activity ComponentInfo{com.sk
+illmatch.app/com.skillmatch.a
+pp.MainActivity}: java.lang.C
+lassNotFoundException: 
+Didn't find class "com.skillm
+atch.app.MainActivity" on 
+path: DexPathList[[zip file "
+/data/app/~~M_fJVzVv8rwU6aKXQ
+30hww==/com.skillmatch.app-Gv
+AL--FIoQKYlDhdhFKN2g==/base.a
+pk"],nativeLibraryDirectories
+=[/data/app/~~M_fJVzVv8rwU6aK
+XQ30hww==/com.skillmatch.app-
+GvAL--FIoQKYlDhdhFKN2g==/lib/
+arm64, /data/app/~~M_fJVzVv8r
+wU6aKXQ30hww==/com.skillmatch
+.app-GvAL--FIoQKYlDhdhFKN2g==
+/base.apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(11347): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4586)
+> E/AndroidRuntime(11347): 	
+at android.app.ActivityThread
+.handleLaunchActivity(Activit
+yThread.java:4941)
+> E/AndroidRuntime(11347): 	
+at android.app.servertransact
+ion.LaunchActivityItem.execut
+e(LaunchActivityItem.java:222
+)
+> E/AndroidRuntime(11347): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teNonLifecycleItem(Transactio
+nExecutor.java:133)
+> E/AndroidRuntime(11347): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teTransactionItems(Transactio
+nExecutor.java:103)
+> E/AndroidRuntime(11347): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+te(TransactionExecutor.java:8
+0)
+> E/AndroidRuntime(11347): 	
+at android.app.ActivityThread
+$H.handleMessage(ActivityThre
+ad.java:3150)
+> E/AndroidRuntime(11347): 	
+at android.os.Handler.dispatc
+hMessage(Handler.java:110)
+> E/AndroidRuntime(11347): 	
+at android.os.Looper.loopOnce
+(Looper.java:273)
+> E/AndroidRuntime(11347): 	
+at android.os.Looper.loop(Loo
+per.java:363)
+> E/AndroidRuntime(11347): 	
+at android.app.ActivityThread
+.main(ActivityThread.java:100
+60)
+> E/AndroidRuntime(11347): 	
+at java.lang.reflect.Method.i
+nvoke(Native Method)
+> E/AndroidRuntime(11347): 	
+at com.android.internal.os.Ru
+ntimeInit$MethodAndArgsCaller
+.run(RuntimeInit.java:632)
+> E/AndroidRuntime(11347): 	
+at com.android.internal.os.Zy
+goteInit.main(ZygoteInit.java
+:975)
+> E/AndroidRuntime(11347): 
+Caused by: java.lang.ClassNot
+FoundException: Didn't find 
+class "com.skillmatch.app.Mai
+nActivity" on path: 
+DexPathList[[zip file "/data/
+app/~~M_fJVzVv8rwU6aKXQ30hww=
+=/com.skillmatch.app-GvAL--FI
+oQKYlDhdhFKN2g==/base.apk"],n
+ativeLibraryDirectories=[/dat
+a/app/~~M_fJVzVv8rwU6aKXQ30hw
+w==/com.skillmatch.app-GvAL--
+FIoQKYlDhdhFKN2g==/lib/arm64,
+ /data/app/~~M_fJVzVv8rwU6aKX
+Q30hww==/com.skillmatch.app-G
+vAL--FIoQKYlDhdhFKN2g==/base.
+apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(11347): 	
+at dalvik.system.BaseDexClass
+Loader.findClass(BaseDexClass
+Loader.java:259)
+> E/AndroidRuntime(11347): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:637)
+> E/AndroidRuntime(11347): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:573)
+> E/AndroidRuntime(11347): 	
+at android.app.AppComponentFa
+ctory.instantiateActivity(App
+ComponentFactory.java:95)
+> E/AndroidRuntime(11347): 	
+at androidx.core.app.CoreComp
+onentFactory.instantiateActiv
+ity(CoreComponentFactory.java
+:44)
+> E/AndroidRuntime(11347): 	
+at android.app.Instrumentatio
+n.newActivity(Instrumentation
+.java:1446)
+> E/AndroidRuntime(11347): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4573)
+> E/AndroidRuntime(11347): 	
+... 13 more
+> E/AndroidRuntime(11468): 
+FATAL EXCEPTION: main
+> E/AndroidRuntime(11468): 
+Process: com.skillmatch.app, 
+PID: 11468
+> E/AndroidRuntime(11468): 
+java.lang.RuntimeException: 
+Unable to instantiate 
+activity ComponentInfo{com.sk
+illmatch.app/com.skillmatch.a
+pp.MainActivity}: java.lang.C
+lassNotFoundException: 
+Didn't find class "com.skillm
+atch.app.MainActivity" on 
+path: DexPathList[[zip file "
+/data/app/~~M_fJVzVv8rwU6aKXQ
+30hww==/com.skillmatch.app-Gv
+AL--FIoQKYlDhdhFKN2g==/base.a
+pk"],nativeLibraryDirectories
+=[/data/app/~~M_fJVzVv8rwU6aK
+XQ30hww==/com.skillmatch.app-
+GvAL--FIoQKYlDhdhFKN2g==/lib/
+arm64, /data/app/~~M_fJVzVv8r
+wU6aKXQ30hww==/com.skillmatch
+.app-GvAL--FIoQKYlDhdhFKN2g==
+/base.apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(11468): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4586)
+> E/AndroidRuntime(11468): 	
+at android.app.ActivityThread
+.handleLaunchActivity(Activit
+yThread.java:4941)
+> E/AndroidRuntime(11468): 	
+at android.app.servertransact
+ion.LaunchActivityItem.execut
+e(LaunchActivityItem.java:222
+)
+> E/AndroidRuntime(11468): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teNonLifecycleItem(Transactio
+nExecutor.java:133)
+> E/AndroidRuntime(11468): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teTransactionItems(Transactio
+nExecutor.java:103)
+> E/AndroidRuntime(11468): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+te(TransactionExecutor.java:8
+0)
+> E/AndroidRuntime(11468): 	
+at android.app.ActivityThread
+$H.handleMessage(ActivityThre
+ad.java:3150)
+> E/AndroidRuntime(11468): 	
+at android.os.Handler.dispatc
+hMessage(Handler.java:110)
+> E/AndroidRuntime(11468): 	
+at android.os.Looper.loopOnce
+(Looper.java:273)
+> E/AndroidRuntime(11468): 	
+at android.os.Looper.loop(Loo
+per.java:363)
+> E/AndroidRuntime(11468): 	
+at android.app.ActivityThread
+.main(ActivityThread.java:100
+60)
+> E/AndroidRuntime(11468): 	
+at java.lang.reflect.Method.i
+nvoke(Native Method)
+> E/AndroidRuntime(11468): 	
+at com.android.internal.os.Ru
+ntimeInit$MethodAndArgsCaller
+.run(RuntimeInit.java:632)
+> E/AndroidRuntime(11468): 	
+at com.android.internal.os.Zy
+goteInit.main(ZygoteInit.java
+:975)
+> E/AndroidRuntime(11468): 
+Caused by: java.lang.ClassNot
+FoundException: Didn't find 
+class "com.skillmatch.app.Mai
+nActivity" on path: 
+DexPathList[[zip file "/data/
+app/~~M_fJVzVv8rwU6aKXQ30hww=
+=/com.skillmatch.app-GvAL--FI
+oQKYlDhdhFKN2g==/base.apk"],n
+ativeLibraryDirectories=[/dat
+a/app/~~M_fJVzVv8rwU6aKXQ30hw
+w==/com.skillmatch.app-GvAL--
+FIoQKYlDhdhFKN2g==/lib/arm64,
+ /data/app/~~M_fJVzVv8rwU6aKX
+Q30hww==/com.skillmatch.app-G
+vAL--FIoQKYlDhdhFKN2g==/base.
+apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(11468): 	
+at dalvik.system.BaseDexClass
+Loader.findClass(BaseDexClass
+Loader.java:259)
+> E/AndroidRuntime(11468): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:637)
+> E/AndroidRuntime(11468): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:573)
+> E/AndroidRuntime(11468): 	
+at android.app.AppComponentFa
+ctory.instantiateActivity(App
+ComponentFactory.java:95)
+> E/AndroidRuntime(11468): 	
+at androidx.core.app.CoreComp
+onentFactory.instantiateActiv
+ity(CoreComponentFactory.java
+:44)
+> E/AndroidRuntime(11468): 	
+at android.app.Instrumentatio
+n.newActivity(Instrumentation
+.java:1446)
+> E/AndroidRuntime(11468): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4573)
+> E/AndroidRuntime(11468): 	
+... 13 more
+> E/AndroidRuntime(12789): 
+FATAL EXCEPTION: main
+> E/AndroidRuntime(12789): 
+Process: com.skillmatch.app, 
+PID: 12789
+> E/AndroidRuntime(12789): 
+java.lang.RuntimeException: 
+Unable to instantiate 
+activity ComponentInfo{com.sk
+illmatch.app/com.skillmatch.a
+pp.MainActivity}: java.lang.C
+lassNotFoundException: 
+Didn't find class "com.skillm
+atch.app.MainActivity" on 
+path: DexPathList[[zip file "
+/data/app/~~M_fJVzVv8rwU6aKXQ
+30hww==/com.skillmatch.app-Gv
+AL--FIoQKYlDhdhFKN2g==/base.a
+pk"],nativeLibraryDirectories
+=[/data/app/~~M_fJVzVv8rwU6aK
+XQ30hww==/com.skillmatch.app-
+GvAL--FIoQKYlDhdhFKN2g==/lib/
+arm64, /data/app/~~M_fJVzVv8r
+wU6aKXQ30hww==/com.skillmatch
+.app-GvAL--FIoQKYlDhdhFKN2g==
+/base.apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(12789): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4586)
+> E/AndroidRuntime(12789): 	
+at android.app.ActivityThread
+.handleLaunchActivity(Activit
+yThread.java:4941)
+> E/AndroidRuntime(12789): 	
+at android.app.servertransact
+ion.LaunchActivityItem.execut
+e(LaunchActivityItem.java:222
+)
+> E/AndroidRuntime(12789): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teNonLifecycleItem(Transactio
+nExecutor.java:133)
+> E/AndroidRuntime(12789): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teTransactionItems(Transactio
+nExecutor.java:103)
+> E/AndroidRuntime(12789): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+te(TransactionExecutor.java:8
+0)
+> E/AndroidRuntime(12789): 	
+at android.app.ActivityThread
+$H.handleMessage(ActivityThre
+ad.java:3150)
+> E/AndroidRuntime(12789): 	
+at android.os.Handler.dispatc
+hMessage(Handler.java:110)
+> E/AndroidRuntime(12789): 	
+at android.os.Looper.loopOnce
+(Looper.java:273)
+> E/AndroidRuntime(12789): 	
+at android.os.Looper.loop(Loo
+per.java:363)
+> E/AndroidRuntime(12789): 	
+at android.app.ActivityThread
+.main(ActivityThread.java:100
+60)
+> E/AndroidRuntime(12789): 	
+at java.lang.reflect.Method.i
+nvoke(Native Method)
+> E/AndroidRuntime(12789): 	
+at com.android.internal.os.Ru
+ntimeInit$MethodAndArgsCaller
+.run(RuntimeInit.java:632)
+> E/AndroidRuntime(12789): 	
+at com.android.internal.os.Zy
+goteInit.main(ZygoteInit.java
+:975)
+> E/AndroidRuntime(12789): 
+Caused by: java.lang.ClassNot
+FoundException: Didn't find 
+class "com.skillmatch.app.Mai
+nActivity" on path: 
+DexPathList[[zip file "/data/
+app/~~M_fJVzVv8rwU6aKXQ30hww=
+=/com.skillmatch.app-GvAL--FI
+oQKYlDhdhFKN2g==/base.apk"],n
+ativeLibraryDirectories=[/dat
+a/app/~~M_fJVzVv8rwU6aKXQ30hw
+w==/com.skillmatch.app-GvAL--
+FIoQKYlDhdhFKN2g==/lib/arm64,
+ /data/app/~~M_fJVzVv8rwU6aKX
+Q30hww==/com.skillmatch.app-G
+vAL--FIoQKYlDhdhFKN2g==/base.
+apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(12789): 	
+at dalvik.system.BaseDexClass
+Loader.findClass(BaseDexClass
+Loader.java:259)
+> E/AndroidRuntime(12789): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:637)
+> E/AndroidRuntime(12789): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:573)
+> E/AndroidRuntime(12789): 	
+at android.app.AppComponentFa
+ctory.instantiateActivity(App
+ComponentFactory.java:95)
+> E/AndroidRuntime(12789): 	
+at androidx.core.app.CoreComp
+onentFactory.instantiateActiv
+ity(CoreComponentFactory.java
+:44)
+> E/AndroidRuntime(12789): 	
+at android.app.Instrumentatio
+n.newActivity(Instrumentation
+.java:1446)
+> E/AndroidRuntime(12789): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4573)
+> E/AndroidRuntime(12789): 	
+... 13 more
+> E/AndroidRuntime(15836): 
+FATAL EXCEPTION: main
+> E/AndroidRuntime(15836): 
+Process: com.skillmatch.app, 
+PID: 15836
+> E/AndroidRuntime(15836): 
+java.lang.RuntimeException: 
+Unable to instantiate 
+activity ComponentInfo{com.sk
+illmatch.app/com.skillmatch.a
+pp.MainActivity}: java.lang.C
+lassNotFoundException: 
+Didn't find class "com.skillm
+atch.app.MainActivity" on 
+path: DexPathList[[zip file "
+/data/app/~~whfvWnlrk9FS_G4_B
+K1LFA==/com.skillmatch.app-lu
+89OC7RauUeWSKZ4PEGAg==/base.a
+pk"],nativeLibraryDirectories
+=[/data/app/~~whfvWnlrk9FS_G4
+_BK1LFA==/com.skillmatch.app-
+lu89OC7RauUeWSKZ4PEGAg==/lib/
+arm64, /data/app/~~whfvWnlrk9
+FS_G4_BK1LFA==/com.skillmatch
+.app-lu89OC7RauUeWSKZ4PEGAg==
+/base.apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(15836): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4586)
+> E/AndroidRuntime(15836): 	
+at android.app.ActivityThread
+.handleLaunchActivity(Activit
+yThread.java:4941)
+> E/AndroidRuntime(15836): 	
+at android.app.servertransact
+ion.LaunchActivityItem.execut
+e(LaunchActivityItem.java:222
+)
+> E/AndroidRuntime(15836): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teNonLifecycleItem(Transactio
+nExecutor.java:133)
+> E/AndroidRuntime(15836): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+teTransactionItems(Transactio
+nExecutor.java:103)
+> E/AndroidRuntime(15836): 	
+at android.app.servertransact
+ion.TransactionExecutor.execu
+te(TransactionExecutor.java:8
+0)
+> E/AndroidRuntime(15836): 	
+at android.app.ActivityThread
+$H.handleMessage(ActivityThre
+ad.java:3150)
+> E/AndroidRuntime(15836): 	
+at android.os.Handler.dispatc
+hMessage(Handler.java:110)
+> E/AndroidRuntime(15836): 	
+at android.os.Looper.loopOnce
+(Looper.java:273)
+> E/AndroidRuntime(15836): 	
+at android.os.Looper.loop(Loo
+per.java:363)
+> E/AndroidRuntime(15836): 	
+at android.app.ActivityThread
+.main(ActivityThread.java:100
+60)
+> E/AndroidRuntime(15836): 	
+at java.lang.reflect.Method.i
+nvoke(Native Method)
+> E/AndroidRuntime(15836): 	
+at com.android.internal.os.Ru
+ntimeInit$MethodAndArgsCaller
+.run(RuntimeInit.java:632)
+> E/AndroidRuntime(15836): 	
+at com.android.internal.os.Zy
+goteInit.main(ZygoteInit.java
+:975)
+> E/AndroidRuntime(15836): 
+Caused by: java.lang.ClassNot
+FoundException: Didn't find 
+class "com.skillmatch.app.Mai
+nActivity" on path: 
+DexPathList[[zip file "/data/
+app/~~whfvWnlrk9FS_G4_BK1LFA=
+=/com.skillmatch.app-lu89OC7R
+auUeWSKZ4PEGAg==/base.apk"],n
+ativeLibraryDirectories=[/dat
+a/app/~~whfvWnlrk9FS_G4_BK1LF
+A==/com.skillmatch.app-lu89OC
+7RauUeWSKZ4PEGAg==/lib/arm64,
+ /data/app/~~whfvWnlrk9FS_G4_
+BK1LFA==/com.skillmatch.app-l
+u89OC7RauUeWSKZ4PEGAg==/base.
+apk!/lib/arm64-v8a, 
+/system/lib64, 
+/system/system_ext/lib64]]
+> E/AndroidRuntime(15836): 	
+at dalvik.system.BaseDexClass
+Loader.findClass(BaseDexClass
+Loader.java:259)
+> E/AndroidRuntime(15836): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:637)
+> E/AndroidRuntime(15836): 	
+at java.lang.ClassLoader.load
+Class(ClassLoader.java:573)
+> E/AndroidRuntime(15836): 	
+at android.app.AppComponentFa
+ctory.instantiateActivity(App
+ComponentFactory.java:95)
+> E/AndroidRuntime(15836): 	
+at androidx.core.app.CoreComp
+onentFactory.instantiateActiv
+ity(CoreComponentFactory.java
+:44)
+> E/AndroidRuntime(15836): 	
+at android.app.Instrumentatio
+n.newActivity(Instrumentation
+.java:1446)
+> E/AndroidRuntime(15836): 	
+at android.app.ActivityThread
+.performLaunchActivity(Activi
+tyThread.java:4573)
+> E/AndroidRuntime(15836): 	
+... 13 more
+> Error waiting for a debug 
+connection: The log reader 
+stopped unexpectedly
+> Error launching 
+application on SM M356B.
+
+

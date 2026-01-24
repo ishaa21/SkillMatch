@@ -1,0 +1,39 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Configure project :
+w: file:///D:/My_Data/Desktop/flutter/internship_app/frontend/android/build.gradle.kts:24:9: 'kotlinOptions(KotlinJvmOptionsDeprecated /* = KotlinJvmOptions */.() -> Unit): Unit' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+> Configure project :app
+Warning: Flutter support for your project's Kotlin version (2.0.21) will soon be dropped. Please upgrade your Kotlin version to a version of at least 2.1.0 soon.
+Alternatively, use the flag "--android-skip-build-dependency-validation" to bypass this check.
+
+Potential fix: Your project's KGP version is typically defined in the plugins block of the `settings.gradle` file (D:\My_Data\Desktop\flutter\internship_app\frontend\android/settings.gradle), by a plugin with the id of org.jetbrains.kotlin.android. 
+If you don't see a plugins block, your project was likely created with an older template version, in which case it is most likely defined in the top-level build.gradle file (D:\My_Data\Desktop\flutter\internship_app\frontend\android/build.gradle) by the ext.kotlin_version property.
+
+w: History based incremental compilation approach for JVM platform is deprecated and will be removed soon in favor of approach based on ABI snapshots.
+Please remove 'kotlin.incremental.useClasspathSnapshot=false' from 'gradle.properties' file.
+
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'D:\My_Data\Desktop\flutter\internship_app\frontend\android\build.gradle.kts' line: 29
+
+* What went wrong:
+Cannot run Project.afterEvaluate(Action) when the project is already evaluated.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6s
+4 actionable tasks: 4 up-to-date
