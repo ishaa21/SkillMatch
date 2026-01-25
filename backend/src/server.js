@@ -1,5 +1,4 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const http = require('http');
@@ -9,13 +8,18 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const path = require('path');
 
-dotenv.config();
+// ✅ Load dotenv ONLY in local development
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
+// ✅ Connect DB after env is ready
 connectDB();
 
 const app = express();
 const server = http.createServer(app);
 
-// Socket.IO
+// ===== Socket.IO =====
 const { Server } = require('socket.io');
 const io = new Server(server, {
     cors: {
@@ -24,7 +28,6 @@ const io = new Server(server, {
     },
 });
 
-// Make io accessible in routes
 app.set('io', io);
 
 io.on('connection', socket => {
