@@ -1,12 +1,10 @@
-// AUTH CONTROLLER – FIXED & STABLE VERSION
+// AUTH CONTROLLER – FIXED & CLEANED VERSION
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Student = require('../models/Student');
 const Company = require('../models/Company');
-const Internship = require('../models/Internship');
-const Application = require('../models/Application');
 
 // =======================
 // JWT Helper
@@ -48,7 +46,7 @@ exports.register = async (req, res) => {
             isVerified: true
         });
 
-        // Create profile safely
+        // Create profile safely (Validation handled by Mongoose Schema defaults where possible)
         if (role === 'student') {
             await Student.create({
                 user: user._id,
@@ -93,7 +91,7 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Email and password required' });
         }
 
-        // IMPORTANT FIX: explicitly fetch password
+        // Explicitly fetch password since it might be unselected by default in some setups
         const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
@@ -101,8 +99,9 @@ exports.login = async (req, res) => {
         }
 
         if (!user.password) {
+            // User registered via OAuth (Google/LinkedIn) and has no password
             return res.status(400).json({
-                message: 'This account uses a different login method'
+                message: 'This account uses a different login method (Google/LinkedIn)'
             });
         }
 
@@ -149,104 +148,4 @@ exports.getMe = async (req, res) => {
         console.error('GET ME ERROR:', error);
         res.status(500).json({ message: 'Server error' });
     }
-};
-
-// =======================
-// PUBLIC INTERNSHIPS
-// =======================
-exports.getAllInternshipsPublic = async (req, res) => {
-    try {
-        const internships = await Internship.find({ isActive: true }).populate('company');
-        res.json(internships);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// =======================
-// ADMIN / COMPANY / STUDENT HELPERS
-// =======================
-exports.getCompanyInternships = async (req, res) => {
-    try {
-        const company = await Company.findOne({ user: req.user.id });
-        if (!company) {
-            return res.status(404).json({ message: 'Company profile not found' });
-        }
-
-        const internships = await Internship.find({ company: company._id });
-        res.json(internships);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-exports.getInternshipApplications = async (req, res) => {
-    try {
-        const applications = await Application.find({
-            internship: req.params.internshipId
-        }).populate({
-            path: 'student',
-            populate: { path: 'user', select: '-password' }
-        });
-
-        res.json(applications);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-exports.updateApplicationStatus = async (req, res) => {
-    try {
-        const application = await Application.findById(req.params.applicationId);
-        if (!application) {
-            return res.status(404).json({ message: 'Application not found' });
-        }
-
-        application.status = req.body.status;
-        await application.save();
-
-        res.json(application);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// =======================
-// ADMIN CONTROLS
-// =======================
-exports.getAllCompanies = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
-    }
-    const companies = await Company.find().populate('user', 'email');
-    res.json(companies);
-};
-
-exports.getAllStudents = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
-    }
-    const students = await Student.find().populate('user', 'email');
-    res.json(students);
-};
-
-exports.verifyCompany = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const company = await Company.findById(req.params.companyId);
-    if (!company) {
-        return res.status(404).json({ message: 'Company not found' });
-    }
-
-    company.isApproved = true;
-    await company.save();
-
-    res.json({ message: 'Company approved', company });
 };

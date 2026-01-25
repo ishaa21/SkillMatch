@@ -1,3 +1,8 @@
+// ✅ Load dotenv ONLY in local development
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -8,10 +13,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const path = require('path');
 
-// ✅ Load dotenv ONLY in local development
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+
 
 // ✅ Connect DB after env is ready
 connectDB();

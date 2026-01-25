@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
     console.log('MONGODB_URI from env:', uri ? 'FOUND' : 'NOT FOUND');
 

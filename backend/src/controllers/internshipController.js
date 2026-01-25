@@ -14,6 +14,25 @@ const {
 
 /**
  * ============================================================
+ * PUBLIC: Get All Active Internships
+ * ============================================================
+ * @route   GET /api/internships/public
+ * @access  Public
+ */
+exports.getAllInternshipsPublic = async (req, res) => {
+    try {
+        const internships = await Internship.find({ isActive: true })
+            .populate('company', 'companyName location logoUrl industry'); // Optimized populate
+
+        res.json(internships);
+    } catch (error) {
+        console.error('Get All Internships Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+/**
+ * ============================================================
  * STUDENT: Get AI-Recommended Internships
  * ============================================================
  * @route   GET /api/internships/recommendations

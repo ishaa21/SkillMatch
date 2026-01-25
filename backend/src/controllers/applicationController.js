@@ -67,13 +67,14 @@ exports.updateApplicationStatus = async (req, res) => {
         if (io) {
             // Populate student to get user ID
             const appWithStudent = await Application.findById(application._id).populate('student');
-            const studentUserId = appWithStudent.student.user.toString();
-
-            io.to(studentUserId).emit('application_updated', {
-                applicationId: application._id,
-                status: status,
-                message: `Your application status has been updated to ${status}`
-            });
+            if (appWithStudent && appWithStudent.student && appWithStudent.student.user) {
+                const studentUserId = appWithStudent.student.user.toString();
+                io.to(studentUserId).emit('application_updated', {
+                    applicationId: application._id,
+                    status: status,
+                    message: `Your application status has been updated to ${status}`
+                });
+            }
         }
 
         res.json(application);
@@ -119,9 +120,7 @@ exports.applyToInternship = async (req, res) => {
         const weights = aiConfig ? aiConfig.weights : DEFAULT_WEIGHTS;
         const aiMatchScore = calculateMatchScore(student, internship, weights);
 
-        // Extract company ID safely (handle both populated and unpopulated)
-        // If populate failed, internship.company might be null. 
-        // If not populated, it might be an ObjectId.
+        // Extract company ID safely
         const companyId = internship.company?._id || internship.company;
 
         if (!companyId) {
@@ -204,9 +203,6 @@ exports.withdrawApplication = async (req, res) => {
         if (application.status === 'Withdrawn') {
             return res.status(400).json({ message: 'Application already withdrawn' });
         }
-
-        // Optionally prevent withdrawing if already Hired/Rejected? 
-        // Typically yes, but requirements are just "withdraw".
 
         application.status = 'Withdrawn';
         await application.save();
