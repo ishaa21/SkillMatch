@@ -71,10 +71,11 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     setState(() => _isLoading = true);
 
     try {
-      final storage = FlutterSecureStorage();
+      final storage = const FlutterSecureStorage();
       final token = await storage.read(key: 'auth_token');
 
-      final dio = Dio();
+      // Use shared Dio configuration with timeouts
+      final dio = createDio(); 
       dio.options.headers['Authorization'] = 'Bearer $token';
 
       final data = {
@@ -82,25 +83,40 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         'phone': _phoneController.text,
         'university': _universityController.text,
         'degree': _degreeController.text,
-        'graduationYear': int.tryParse(_graduationYearController.text),
+        'graduationYear': int.tryParse(_graduationYearController.text) ?? DateTime.now().year, 
         'skills': _skills
             .map((s) => {'name': s, 'proficiency': 'Intermediate'})
             .toList(),
         'interests': _interests,
         'internshipPreferences': {'type': _workMode},
       };
+      
+      print('Sending profile data: $data'); // Debug
 
-      await dio.put('${ApiConstants.baseUrl}/student/profile', data: data);
+      await dio.put('/student/profile', data: data);
 
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const StudentDashboard()),
       );
+    } on DioException catch (e) {
+      print('DioError: ${e.response?.data}');
+      if (mounted) {
+        String msg = 'Error saving profile';
+        if (e.response?.statusCode == 500) msg = 'Server Error (500). details in log.';
+        if (e.response?.data is Map && (e.response?.data as Map).containsKey('message')) {
+            msg = e.response?.data['message'];
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg)),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving profile: $e')),
+          SnackBar(content: Text('Unexpected error: $e')),
         );
       }
     } finally {

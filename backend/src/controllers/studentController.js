@@ -22,15 +22,42 @@ exports.getProfile = async (req, res) => {
 // @access  Private (Student only)
 exports.updateProfile = async (req, res) => {
     try {
+        console.log('Updating student profile for user:', req.user.id);
+        console.log('Update payload:', req.body);
+
+        // Calculate profile completion manually to avoid Schema method issues during update
+        let completion = 0;
+        const { fullName, phone, university, degree, graduationYear, skills, education, experience, resumeUrl } = req.body;
+
+        if (fullName) completion += 10;
+        if (phone) completion += 5;
+        if (university || (education && education.length > 0)) completion += 25;
+        if (skills && skills.length > 0) completion += 30;
+        if (experience && experience.length > 0) completion += 15;
+        if (resumeUrl) completion += 15;
+
+        // Ensure completion is within bounds
+        if (completion > 100) completion = 100;
+
+        const updateData = {
+            ...req.body,
+            profileComplete: completion
+        };
+
         const student = await Student.findOneAndUpdate(
             { user: req.user.id },
-            { $set: req.body },
+            { $set: updateData },
             { new: true, upsert: true, runValidators: true }
         );
+
+        console.log('Profile updated successfully:', student._id);
         res.json(student);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Update Profile Error:', error);
+        res.status(500).json({
+            message: 'Server error updating profile',
+            error: error.message
+        });
     }
 };
 
