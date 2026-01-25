@@ -1,54 +1,101 @@
-# AI Internship Matching Platform
+# 📌 SkillMatch – Internship Matching Platform
 
-## Project Overview
-This represents a scalable, professional-grade architecture for an AI-powered internship matching application.
+## About the Project
 
-### Tech Stack
-- **Frontend**: Flutter (Mobile & Web)
-- **Backend**: Node.js + Express
+SkillMatch is an internship matching platform designed to connect students with relevant internships based on their skills, interests, and preferences. The project focuses on solving a real problem faced by students — finding internships that actually match their profiles — while giving companies a structured way to manage applications.
+
+This project is built as a full-stack application and is suitable for academic submission as well as future expansion into a startup-ready product.
+
+## 🛠 Tech Stack Used
+
+- **Frontend**: Flutter (Android / Web support)
+- **Backend**: Node.js with Express
 - **Database**: MongoDB
-- **AI Engine**: Custom Weighted Scoring Algorithm (Node.js)
+- **Authentication**: JWT-based authentication
+- **AI Logic**: Rule-based weighted scoring algorithm
 
-### Architecture
-1.  **Role-Based Access Control (RBAC)**: secure JWT authentication for `Student`, `Company`, `Admin`.
-2.  **AI Matching**: 
-    - Located in `backend/src/utils/aiMatcher.js`.
-    - Evaluates 5 key metrics: Skills (40%), Domain Interest (20%), Location (15%), Profilciency (15%), Logistics (10%).
-3.  **Scalable Schema**: MongoDB collections designed for high-volume data (indexing recommended on `skills` and `location`).
+## 🔐 User Roles
 
-### Setup Instructions
+The application supports three types of users:
 
-#### 1. Backend Setup
+### Student
+- Create and manage profile
+- View AI-recommended internships
+- Apply for internships and track application status
+
+### Company
+- Register and wait for admin approval
+- Post and manage internship listings
+- View applicants and update application status
+
+### Admin
+- Approve or reject company registrations
+- Monitor users, internships, and applications
+- Control basic system configurations
+
+## 🤖 Internship Matching Logic
+
+The internship matching logic is implemented on the backend using a weighted scoring approach. Each internship is scored based on how well it matches a student’s profile.
+
+**Main factors considered:**
+- Skills match
+- Domain interest
+- Location preference
+- Experience / proficiency
+- Availability and work mode
+
+The final score is used to rank internships for each student.
+
+## 📁 Project Structure
+
+```
+internship_app/
+│
+├── backend/
+│   ├── models/        # Mongoose schemas
+│   ├── controllers/   # API logic
+│   ├── routes/        # Express routes
+│   ├── utils/         # AI matching logic
+│   └── server.js
+│
+├── frontend/
+│   └── lib/
+│       ├── core/      # Theme, constants, helpers
+│       ├── features/  # Auth, dashboards, profiles
+│       └── main.dart
+```
+
+## 🚀 How to Run the Project
+
+### Backend Setup
 ```bash
 cd backend
 npm install
-# Ensure MongoDB is running locally or update .env
 npm run dev
 ```
+Make sure you have a valid MongoDB connection string set in the `.env` file.
 
-#### 2. Frontend Setup
+### Frontend Setup
 ```bash
 cd frontend
 flutter pub get
 flutter run
 ```
 
-### Color Palette
-Generated from your provided image:
-- **Primary**: `#235347` (Deep Green)
-- **Background**: `#DAF1DE` (Mint Light)
-- **Accent**: `#8EB69B` (Sage)
+## 🎨 UI Theme
 
-### Directory Structure
-```
-/internship_app
-  /backend
-    /src
-      /models      # Mongoose Schemas
-      /controllers # Business Logic
-      /utils       # AI Matcher
-  /frontend
-    /lib
-      /core/theme  # Applied Professional Theme
-      /features    # Clean Architecture Layers
-```
+The app uses a clean and minimal green-based theme to keep the interface calm and professional.
+
+- **Primary Color**: Deep Green
+- **Background**: Light Mint
+- **Accent**: Soft Sage Green
+
+## 📌 Notes
+
+- This project is actively evolving and structured to allow easy future improvements.
+- Real-time updates are supported using Socket.IO.
+- The codebase follows modular and readable practices to simplify maintenance.
+
+## 📄 License
+
+This project is developed for learning and academic purposes.
