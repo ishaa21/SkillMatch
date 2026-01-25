@@ -25,10 +25,10 @@ const { protect } = require('../middleware/authMiddleware');
 // Auth routes
 router.post('/register', register);
 router.post('/login', login);
-router.post('/otp/send', sendOtp);
-router.post('/otp/verify', verifyOtp);
-router.post('/google', googleLogin);
-router.post('/refresh', refreshToken);
+// router.post('/otp/send', sendOtp);
+// router.post('/otp/verify', verifyOtp);
+// router.post('/google', googleLogin);
+// router.post('/refresh', refreshToken);
 router.get('/me', protect, getMe);
 
 // PUBLIC route for demo (no auth required)
