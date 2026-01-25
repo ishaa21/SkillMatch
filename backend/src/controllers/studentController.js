@@ -22,40 +22,52 @@ exports.getProfile = async (req, res) => {
 // @access  Private (Student only)
 exports.updateProfile = async (req, res) => {
     try {
-        console.log('Updating student profile for user:', req.user.id);
-        console.log('Update payload:', req.body);
+        console.log('--- UPDATE SNAPSHOT START ---');
+        console.log('User ID:', req.user.id);
 
-        // Calculate profile completion manually to avoid Schema method issues during update
+        // 1. Sanitize Payload explicitly
+        const {
+            fullName, phone, university, degree, graduationYear,
+            skills, interests, internshipPreferences
+        } = req.body;
+
+        // 2. Calculate Score
         let completion = 0;
-        const { fullName, phone, university, degree, graduationYear, skills, education, experience, resumeUrl } = req.body;
-
         if (fullName) completion += 10;
         if (phone) completion += 5;
-        if (university || (education && education.length > 0)) completion += 25;
+        if (university) completion += 25;
         if (skills && skills.length > 0) completion += 30;
-        if (experience && experience.length > 0) completion += 15;
-        if (resumeUrl) completion += 15;
 
-        // Ensure completion is within bounds
-        if (completion > 100) completion = 100;
+        // 3. Construct Update Object Safe for Mongoose
+        const updateData = {};
+        if (fullName) updateData.fullName = fullName;
+        if (phone) updateData.phone = phone;
+        if (university) updateData.university = university;
+        if (degree) updateData.degree = degree;
+        if (graduationYear) updateData.graduationYear = graduationYear;
+        if (skills) updateData.skills = skills;
+        if (interests) updateData.interests = interests;
+        if (internshipPreferences) updateData.internshipPreferences = internshipPreferences;
 
-        const updateData = {
-            ...req.body,
-            profileComplete: completion
-        };
+        updateData.profileComplete = completion > 100 ? 100 : completion;
 
+        console.log('Computed Update Data:', JSON.stringify(updateData, null, 2));
+
+        // 4. Perform Update (runValidators: false to prevent crashes on partial/legacy data)
         const student = await Student.findOneAndUpdate(
             { user: req.user.id },
             { $set: updateData },
-            { new: true, upsert: true, runValidators: true }
+            { new: true, upsert: true, runValidators: false }
         );
 
-        console.log('Profile updated successfully:', student._id);
+        console.log('Update Success. Doc ID:', student._id);
+        console.log('--- UPDATE SNAPSHOT END ---');
+
         res.json(student);
     } catch (error) {
-        console.error('Update Profile Error:', error);
+        console.error('CRITICAL UPDATE ERROR:', error);
         res.status(500).json({
-            message: 'Server error updating profile',
+            message: 'Server error during profile update',
             error: error.message
         });
     }

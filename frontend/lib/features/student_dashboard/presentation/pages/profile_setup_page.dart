@@ -3,6 +3,7 @@ import '../../../../core/theme/app_theme.dart';
 import 'student_dashboard.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
+import '../../../../core/utils/dio_client.dart';
 import '../../../../core/constants/api_constants.dart';
 import 'package:dotted_border/dotted_border.dart';
 
