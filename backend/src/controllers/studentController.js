@@ -34,7 +34,6 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        // console.log('Update payload:', JSON.stringify(req.body, null, 2)); // Debug log
 
         // 1. Find existing profile or create new instance
         let student = await Student.findOne({ user: userId });
@@ -69,7 +68,6 @@ exports.updateProfile = async (req, res) => {
         } = req.body;
 
         // 3. Update fields if they are provided (undefined check)
-        // We permit null/empty string to clear fields
         if (fullName !== undefined) student.fullName = fullName;
         if (phone !== undefined) student.phone = phone;
         if (university !== undefined) student.university = university;
@@ -84,7 +82,6 @@ exports.updateProfile = async (req, res) => {
         if (portfolioUrl !== undefined) student.portfolioUrl = portfolioUrl;
 
         // 4. Handle Complex Objects & Arrays (Overwrite strategy)
-        // Frontend should send the complete array. Only update if provided.
         if (skills !== undefined) student.skills = skills;
         if (interests !== undefined) student.interests = interests;
         if (education !== undefined) student.education = education;
@@ -93,21 +90,38 @@ exports.updateProfile = async (req, res) => {
         if (certifications !== undefined) student.certifications = certifications;
         if (languages !== undefined) student.languages = languages;
 
-        // Handle Nested Objects carefully (Merge or Overwrite?)
-        // For simplicity and safety, we overwrite the whole object if provided,
-        // unless specific sub-fields are critical. Here we overwrite.
+        // Handle Nested Objects carefully
         if (internshipPreferences !== undefined) {
             student.internshipPreferences = {
-                ...student.internshipPreferences, // preserve defaults/existing
+                ...student.internshipPreferences,
                 ...internshipPreferences
             };
         }
 
+        // FIX: Ensure location.coordinates is a valid GeoJSON object if provided
         if (location !== undefined) {
             student.location = {
                 ...student.location,
                 ...location
             };
+
+            // Ensure coordinates is properly formatted if present
+            if (student.location.coordinates &&
+                (!student.location.coordinates.type || !student.location.coordinates.coordinates)) {
+
+                // If coordinates are missing or empty, reset to avoid "Point must be an array or object" error
+                if (!location.coordinates || location.coordinates.length !== 2) {
+                    student.location.coordinates = undefined; // Or set to a default valid point if absolutely required
+                } else {
+                    student.location.coordinates = {
+                        type: 'Point',
+                        coordinates: location.coordinates
+                    };
+                }
+            } else if (location.coordinates === null || (location.coordinates && location.coordinates.length === 0)) {
+                // If client sent null or empty array, remove it to prevent validation error
+                student.location.coordinates = undefined;
+            }
         }
 
         // 5. Save (Triggers pre-save hook for profileComplete calculation)
@@ -128,6 +142,11 @@ exports.updateProfile = async (req, res) => {
             return res.status(400).json({ message: `Invalid value for field: ${error.path}` });
         }
 
+        // Handle GeoJSON errors specifically
+        if (error.code === 16755 || (error.message && error.message.includes('Point must be an array or object'))) {
+            return res.status(400).json({ message: 'Invalid location coordinates data' });
+        }
+
         res.status(500).json({
             message: 'Server error updating profile',
             error: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -144,8 +163,6 @@ exports.uploadResume = async (req, res) => {
             return res.status(400).json({ message: 'Please upload a file' });
         }
 
-        // Construct URL needs to be robust. 
-        // Ideally use valid static path or cloud storage URL.
         const resumeUrl = `/uploads/resumes/${req.file.filename}`;
 
         let student = await Student.findOne({ user: req.user.id });
