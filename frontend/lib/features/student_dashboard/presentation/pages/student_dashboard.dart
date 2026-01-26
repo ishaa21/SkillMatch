@@ -157,23 +157,21 @@ class _StudentDashboardState extends State<StudentDashboard>
     });
 
     try {
+      final token = await _storage.read(key: 'auth_token');
+      // If no token, maybe use public endpoint? But Dashboard implies logged in.
+      // We'll assume logged in for now.
+      
       final response = await _dio.get(
-        '${ApiConstants.baseUrl}/auth/public/internships',
+        '${ApiConstants.baseUrl}/internships/recommendations',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200) {
         var rawList = response.data is List ? List.from(response.data) : [];
 
-        // Calculate match percentage for each internship based on user skills
-        for (var internship in rawList) {
-          internship['matchPercentage'] = _calculateMatchPercentage(internship);
-        }
-
-        // Sort by match percentage (highest first)
-        rawList.sort((a, b) => 
-          (b['matchPercentage'] ?? 0).compareTo(a['matchPercentage'] ?? 0)
-        );
-
+        // Backend already provides matchPercentage, but we can verify/fallback
+        // rawList is already sorted by backend usually
+        
         if (mounted) {
           setState(() {
             _allInternships = rawList;

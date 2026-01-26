@@ -88,7 +88,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
 
     try {
       final response = await _dio.get(
-        '${ApiConstants.baseUrl}/auth/public/internships',
+        '${ApiConstants.baseUrl}/internships/public',
       );
 
       if (response.statusCode == 200) {
@@ -177,6 +177,9 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
   }
 
   String _getCompanyName(Map<String, dynamic> internship) {
+    // Check root level first (Normalized data)
+    if (internship['companyName'] != null) return internship['companyName'];
+    
     if (internship['companyDetails'] != null) {
       return internship['companyDetails']['companyName'] ?? 'Company';
     }

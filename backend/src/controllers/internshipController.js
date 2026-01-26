@@ -24,7 +24,8 @@ exports.getAllInternshipsPublic = async (req, res) => {
         const internships = await Internship.find({ isActive: true })
             .populate('company', 'companyName location logoUrl industry'); // Optimized populate
 
-        res.json(internships);
+        const normalizedInternships = internships.map(normalizeInternshipForFlutter);
+        res.json(normalizedInternships);
     } catch (error) {
         console.error('Get All Internships Error:', error);
         res.status(500).json({ message: 'Server error' });
