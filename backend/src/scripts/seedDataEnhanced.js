@@ -47,8 +47,16 @@ const LOCATIONS = [
     { city: 'Pune', coords: [73.8567, 18.5204] }
 ];
 
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const getRandomDate = (start, end) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+
+// Status possibilities for applications
+// Schema: ['Applied', 'Shortlisted', 'Interview', 'Hired', 'Rejected', 'Withdrawn', 'OnHold']
+const APP_STATUS = ['Applied', 'Applied', 'Applied', 'Shortlisted', 'Shortlisted', 'Rejected', 'Interview', 'Hired'];
+
 const seedData = async () => {
     await connectDB();
+
 
     try {
         console.log('🚮 Clearing Database...');
@@ -66,19 +74,22 @@ const seedData = async () => {
         // 1. Create Admins
         console.log('👨‍💼 Creating Admins...');
         await User.create([
-            { email: 'admin1@skillmatch.com', password: hashedPassword, role: 'admin', isVerified: true },
-            { email: 'admin2@skillmatch.com', password: hashedPassword, role: 'admin', isVerified: true }
+            { email: 'admin1@skillmatch.com', password: hashedPassword, role: 'admin', isVerified: true, createdAt: getRandomDate(new Date(2023, 0, 1), new Date()) },
+            { email: 'admin2@skillmatch.com', password: hashedPassword, role: 'admin', isVerified: true, createdAt: getRandomDate(new Date(2023, 0, 1), new Date()) }
         ]);
 
         // 2. Create Companies
         console.log('🏢 Creating 20 Companies...');
         const companies = [];
+        const companyUsers = [];
         for (let i = 1; i <= 20; i++) {
+            const createdAt = getRandomDate(new Date(2023, 5, 1), new Date());
             const user = await User.create({
                 email: `company${i}@tech.com`,
                 password: hashedPassword,
                 role: 'company',
-                isVerified: true
+                isVerified: true,
+                createdAt: createdAt
             });
 
             const loc = LOCATIONS[i % LOCATIONS.length];
@@ -87,23 +98,29 @@ const seedData = async () => {
             const company = await Company.create({
                 user: user._id,
                 companyName: `Tech Giant ${i} Solutions`,
-                companyDescription: `Leading innovator in ${industry} providing cutting-edge solutions worldwide.`, // Field name check: Schema uses 'description' usually, but request said 'companyDescription'. Adapting to Schema: mapped to 'description'.
+                companyDescription: `Leading innovator in ${industry} providing cutting-edge solutions worldwide.`,
                 description: `Leading innovator in ${industry} providing cutting-edge solutions worldwide.`,
                 website: `https://techgiant${i}.com`,
                 location: `${loc.city}, India`,
                 industry: industry,
-                isApproved: true
+                isApproved: true,
+                createdAt: createdAt
             });
             companies.push(company);
+            companyUsers.push(user);
         }
 
         // 3. Create Internships (3 per company = 60 total)
         console.log('💼 Creating 60+ Internships...');
+        const internships = [];
         for (const company of companies) {
             for (let j = 1; j <= 3; j++) {
                 const loc = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
 
-                await Internship.create({
+                // Distribute post dates over last 30 days largely, some older
+                const postedAt = getRandomDate(new Date(Date.now() - 45 * 24 * 60 * 60 * 1000), new Date());
+
+                const internship = await Internship.create({
                     company: company._id,
                     title: `${company.industry} Intern - Role ${j}`,
                     description: `Join us to work on exciting ${company.industry} projects. Great learning curve.`,
@@ -118,26 +135,43 @@ const seedData = async () => {
                     skillsRequired: SKILLS.slice(0, 3), // First 3 skills
                     domains: [company.industry, 'Software Engineering'],
                     isActive: true,
-                    postedAt: new Date(),
+                    postedAt: postedAt,
                     deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
-                    status: 'Active'
+                    status: 'Active',
+                    applications: [], // Will populate later
+                    savedCount: 0,
+                    applicants: []
                 });
+                internships.push(internship);
             }
         }
 
         // 4. Create Students (10 students)
         console.log('🎓 Creating 10 Students...');
+        const students = [];
         for (let i = 1; i <= 10; i++) {
+            const createdAt = getRandomDate(new Date(2023, 8, 1), new Date());
             const user = await User.create({
                 email: `student${i}@uni.edu`,
                 password: hashedPassword,
                 role: 'student',
-                isVerified: true
+                isVerified: true,
+                createdAt: createdAt
             });
 
             const loc = LOCATIONS[i % LOCATIONS.length];
 
-            await Student.create({
+            // Randomize saved internships
+            const savedInternships = [];
+            const numSaved = getRandomInt(1, 5);
+            for (let k = 0; k < numSaved; k++) {
+                const randomInternship = internships[getRandomInt(0, internships.length - 1)];
+                if (!savedInternships.includes(randomInternship._id)) {
+                    savedInternships.push(randomInternship._id);
+                }
+            }
+
+            const student = await Student.create({
                 user: user._id,
                 fullName: `Student User ${i}`,
                 university: `Institute of Technology ${i}`,
@@ -163,11 +197,59 @@ const seedData = async () => {
                     endYear: 2026,
                     isCurrentlyStudying: true
                 }],
-                profileComplete: 85
+                savedInternships: savedInternships,
+                profileComplete: 85,
+                createdAt: createdAt
             });
+            students.push(student);
         }
 
-        console.log('✅ SEEDING COMPLETE');
+        // 5. Create Applications (Simulate active platform)
+        console.log('📝 Creating Applications & History...');
+        // Each student applies to 4-8 internships
+        for (const student of students) {
+            const numApplications = getRandomInt(4, 8);
+            const appliedInternshipIds = new Set();
+
+            for (let a = 0; a < numApplications; a++) {
+                // Pick random internship
+                let internship = internships[getRandomInt(0, internships.length - 1)];
+
+                // Avoid duplicate applications
+                if (appliedInternshipIds.has(internship._id)) continue;
+                appliedInternshipIds.add(internship._id);
+
+                const status = APP_STATUS[getRandomInt(0, APP_STATUS.length - 1)];
+                const appliedAt = getRandomDate(internship.postedAt, new Date());
+
+                const application = await Application.create({
+                    student: student._id,
+                    internship: internship._id,
+                    company: internship.company,
+                    status: status,
+                    appliedAt: appliedAt,
+                    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', // Dummy Resume
+                    questionsAnswers: [{ question: 'Why do you want to join?', answer: 'I am passionate about this field.', type: 'Text' }], // Fixed schema field name
+                    aiMatchScore: getRandomInt(60, 95)
+                });
+
+                // Update Intership Stats
+                internship.applicants.push(student._id);
+                internship.applications.push(application._id);
+                internship.totalApplications = (internship.totalApplications || 0) + 1;
+                await internship.save();
+
+                // Update Student Stats
+                student.appliedInternships.push(application._id);
+                student.totalApplications = (student.totalApplications || 0) + 1;
+                await student.save();
+            }
+        }
+
+        // 6. Update Analytics Counts (Optional simulation for high demand)
+        // Just rely on the natural distribution above, which should cover it.
+
+        console.log('✅ SEEDING COMPLETE WITH REALISTIC DATA');
         console.log('--------------------------------------------------');
         console.log('🔑 Credentials (Password: password123)');
         console.log('--------------------------------------------------');
