@@ -78,7 +78,7 @@ const seedData = async () => {
             { email: 'admin2@skillmatch.com', password: hashedPassword, role: 'admin', isVerified: true, createdAt: getRandomDate(new Date(2023, 0, 1), new Date()) }
         ]);
 
-        // 2. Create Companies
+        // 2. Create Companies (20 Total: 18 Approved, 2 Pending)
         console.log('🏢 Creating 20 Companies...');
         const companies = [];
         const companyUsers = [];
@@ -94,6 +94,7 @@ const seedData = async () => {
 
             const loc = LOCATIONS[i % LOCATIONS.length];
             const industry = INDUSTRIES[i % INDUSTRIES.length];
+            const isApproved = i <= 18; // Last 2 are pending
 
             const company = await Company.create({
                 user: user._id,
@@ -103,7 +104,7 @@ const seedData = async () => {
                 website: `https://techgiant${i}.com`,
                 location: `${loc.city}, India`,
                 industry: industry,
-                isApproved: true,
+                isApproved: isApproved, // Mixed status
                 createdAt: createdAt
             });
             companies.push(company);

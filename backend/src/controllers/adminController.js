@@ -522,7 +522,7 @@ exports.getAnalytics = async (req, res) => {
         const topSkills = await Internship.aggregate([
             { $match: { isActive: true } },
             { $unwind: "$skillsRequired" },
-            { $group: { _id: "$skillsRequired", count: { $sum: 1 } } },
+            { $group: { _id: "$skillsRequired.name", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
             { $limit: 10 }
         ]);

@@ -58,7 +58,12 @@ exports.getRecommendedInternships = async (req, res) => {
         }
 
         if (location) {
-            query.location = { $regex: location, $options: 'i' };
+            // Search in city, country, or legacy string location
+            query.$or = [
+                { 'location.city': { $regex: location, $options: 'i' } },
+                { 'location.country': { $regex: location, $options: 'i' } },
+                { location: { $regex: location, $options: 'i' } } // Fallback for any string formats
+            ];
         }
 
         if (workMode && workMode !== 'Any') {
@@ -66,7 +71,12 @@ exports.getRecommendedInternships = async (req, res) => {
         }
 
         if (duration) {
-            query.duration = { $regex: duration, $options: 'i' };
+            // Match against duration value (if number) or displayString
+            if (!isNaN(duration)) {
+                query['duration.value'] = Number(duration);
+            } else {
+                query['duration.displayString'] = { $regex: duration, $options: 'i' };
+            }
         }
 
         // 3️⃣ Fetch internships
