@@ -131,8 +131,11 @@ const seedData = async () => {
             },
             location: {
                 city: 'Mumbai',
-                country: 'India'
-                // coordinates omitted intentionally to avoid 2dsphere errors if lat/long unknown
+                country: 'India',
+                coordinates: {
+                    type: 'Point',
+                    coordinates: [72.8777, 19.0760] // Mumbai
+                }
             },
             availability: {
                 status: 'Available',
@@ -158,7 +161,11 @@ const seedData = async () => {
             },
             location: {
                 city: 'Bangalore',
-                country: 'India'
+                country: 'India',
+                coordinates: {
+                    type: 'Point',
+                    coordinates: [77.5946, 12.9716] // Bangalore
+                }
             }
         });
 
@@ -170,16 +177,24 @@ const seedData = async () => {
             title: 'Full Stack Developer Intern',
             description: 'Work on our core banking platform using MERN stack. Great learning opportunity.',
             stipend: { amount: 20000, currency: 'INR', interval: 'Monthly' },
-            location: 'Hyderabad (Remote allowed)',
+            location: {
+                city: 'Hyderabad',
+                country: 'India',
+                coordinates: {
+                    type: 'Point',
+                    coordinates: [78.4867, 17.3850] // Hyderabad
+                }
+            },
             workMode: 'Remote',
-            duration: '6 Months',
+            duration: { value: 6, unit: 'Months' },
             skillsRequired: [
                 { name: 'React', level: 'Intermediate' },
                 { name: 'Node.js', level: 'Intermediate' }
             ],
             domains: ['Web Development', 'FinTech'],
             isActive: true,
-            postedAt: new Date()
+            postedAt: new Date(),
+            deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
         });
 
         const internship2 = await Internship.create({
@@ -187,16 +202,24 @@ const seedData = async () => {
             title: 'AI Research Intern',
             description: 'Research and implement SOTA models for green energy forecasting.',
             stipend: { amount: 30000, currency: 'INR', interval: 'Monthly' },
-            location: 'Bangalore',
+            location: {
+                city: 'Bangalore',
+                country: 'India',
+                coordinates: {
+                    type: 'Point',
+                    coordinates: [77.5946, 12.9716] // Bangalore
+                }
+            },
             workMode: 'On-site',
-            duration: '3 Months',
+            duration: { value: 3, unit: 'Months' },
             skillsRequired: [
                 { name: 'Python', level: 'Advanced' },
                 { name: 'Machine Learning', level: 'Intermediate' }
             ],
             domains: ['AI', 'CleanTech', 'Data Science'],
             isActive: true,
-            postedAt: new Date()
+            postedAt: new Date(),
+            deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days from now
         });
 
         console.log('🌱 Creating Applications...');
