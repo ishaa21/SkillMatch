@@ -269,6 +269,7 @@ class _ApprovalsSectionState extends State<ApprovalsSection> {
         ],
       ),
     );
+  }
 
   // ================= SUB WIDGETS =================
 
