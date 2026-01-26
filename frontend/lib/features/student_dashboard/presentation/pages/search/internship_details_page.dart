@@ -74,6 +74,10 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
     try {
       final token = await _storage.read(key: 'auth_token');
       final internshipId = widget.internship['id'] ?? widget.internship['_id'];
+      
+      if (internshipId == null || internshipId.toString() == 'null' || internshipId.toString().isEmpty) {
+        throw Exception('Invalid internship ID');
+      }
 
       await _dio.post(
         '${ApiConstants.baseUrl}/applications',
@@ -760,6 +764,9 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
 
   String _getCompanyName() {
     try {
+      // Check root level first (Normalized)
+      if (widget.internship['companyName'] != null) return widget.internship['companyName'].toString();
+
       if (widget.internship['companyDetails'] != null && widget.internship['companyDetails'] is Map) {
         return widget.internship['companyDetails']['companyName']?.toString() ?? 'Company';
       }
