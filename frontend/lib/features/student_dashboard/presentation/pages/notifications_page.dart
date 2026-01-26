@@ -2,40 +2,25 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key});
+  final List<Map<String, dynamic>> notifications;
+  
+  const NotificationsPage({
+    super.key, 
+    required this.notifications,
+  });
 
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  // Mock notifications - In real app this would come from API
-  final List<Map<String, dynamic>> _notifications = [
-    {
-      'id': '1',
-      'title': 'Application Viewed',
-      'message': 'TechCorp viewed your application for "Frontend Developer".',
-      'time': '2 hours ago',
-      'isRead': false,
-      'type': 'view',
-    },
-    {
-      'id': '2',
-      'title': 'New Internship Alert',
-      'message': 'New "Flutter Developer" roles are available now.',
-      'time': '5 hours ago',
-      'isRead': true,
-      'type': 'job',
-    },
-    {
-      'id': '3',
-      'title': 'Profile Incomplete',
-      'message': 'Complete your profile to get 3x more visibility.',
-      'time': '1 day ago',
-      'isRead': true,
-      'type': 'alert',
-    },
-  ];
+  late List<Map<String, dynamic>> _notifications;
+
+  @override
+  void initState() {
+    super.initState();
+    _notifications = List.from(widget.notifications);
+  }
 
   void _deleteNotification(int index) {
     setState(() {
@@ -57,16 +42,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: const Text('Notifications'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        Navigator.pop(context, _notifications);
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        appBar: AppBar(
+          title: const Text('Notifications'),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context, _notifications),
+          ),
         titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
           color: Colors.black,

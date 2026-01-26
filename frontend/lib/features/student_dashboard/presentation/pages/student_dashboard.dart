@@ -270,6 +270,34 @@ class _StudentDashboardState extends State<StudentDashboard>
     await _initializeData();
   }
 
+  // Mock notifications for demo
+  List<Map<String, dynamic>> _notifications = [
+    {
+      'id': '1',
+      'title': 'Application Viewed',
+      'message': 'TechCorp viewed your application for "Frontend Developer".',
+      'time': '2 hours ago',
+      'isRead': false,
+      'type': 'view',
+    },
+    {
+      'id': '2',
+      'title': 'New Internship Alert',
+      'message': 'New "Flutter Developer" roles are available now.',
+      'time': '5 hours ago',
+      'isRead': true,
+      'type': 'job',
+    },
+    {
+      'id': '3',
+      'title': 'Profile Incomplete',
+      'message': 'Complete your profile to get 3x more visibility.',
+      'time': '1 day ago',
+      'isRead': true,
+      'type': 'alert',
+    },
+  ];
+
   // ===================== UI =====================
   @override
   Widget build(BuildContext context) {
@@ -300,13 +328,21 @@ class _StudentDashboardState extends State<StudentDashboard>
           SliverToBoxAdapter(
             child: DashboardHeader(
               userName: _userName,
-              notificationCount: _appliedInternshipIds.length,
+              notificationCount: _notifications.length, // Use actual count
               completionPercentage: _completionPercentage,
-              onNotificationTap: () {
-                Navigator.push(
+              onNotificationTap: () async {
+                 final updatedList = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const NotificationsPage()),
+                  MaterialPageRoute(
+                    builder: (_) => NotificationsPage(notifications: _notifications),
+                  ),
                 );
+                
+                if (updatedList != null && updatedList is List<Map<String, dynamic>>) {
+                  setState(() {
+                    _notifications = updatedList;
+                  });
+                }
               },
             ),
           ),
