@@ -234,18 +234,22 @@ class _StudentDashboardState extends State<StudentDashboard>
     if (_selectedFilter == 'All') {
       return internships;
     } else if (_selectedFilter == 'Remote') {
-      return internships.where((i) => i['workMode'] == 'Remote').toList();
+      return internships.where((i) => (i['workMode']?.toString().toLowerCase() ?? '') == 'remote').toList();
     } else if (_selectedFilter == 'Hybrid') {
-      return internships.where((i) => i['workMode'] == 'Hybrid').toList();
+      return internships.where((i) => (i['workMode']?.toString().toLowerCase() ?? '') == 'hybrid').toList();
     } else if (_selectedFilter == 'On-site') {
-      return internships.where((i) => i['workMode'] == 'Onsite' || i['workMode'] == 'On-site').toList();
+      return internships.where((i) {
+        final mode = i['workMode']?.toString().toLowerCase() ?? '';
+        return mode == 'onsite' || mode == 'on-site';
+      }).toList();
     } else if (_selectedFilter == '\$ High Pay') {
       return internships.where((i) {
+        // Handle both normalized 'stipend' Map and raw structures if any
         final stipend = i['stipend'];
         if (stipend is Map) {
-          final amount = num.tryParse(stipend['max']?.toString() ?? 
-                                    stipend['min']?.toString() ?? '0') ?? 0;
-          return amount >= 10000; // Updated threshold
+          final max = num.tryParse(stipend['max']?.toString() ?? 
+                                  stipend['amount']?.toString() ?? '0') ?? 0;
+          return max >= 10000;
         }
         return false;
       }).toList();
