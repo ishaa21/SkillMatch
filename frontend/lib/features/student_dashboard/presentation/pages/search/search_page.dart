@@ -222,7 +222,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.filter_list),
+                icon: const Icon(Icons.filter_list, color: AppColors.primary),
                 onPressed: _showFilterModal,
               ),
               if (_selectedFilter != 'All' || _selectedDuration != 'Any')
