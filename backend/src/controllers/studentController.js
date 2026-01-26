@@ -100,28 +100,31 @@ exports.updateProfile = async (req, res) => {
 
         // FIX: Ensure location.coordinates is a valid GeoJSON object if provided
         if (location !== undefined) {
-            student.location = {
-                ...student.location,
-                ...location
+            // 1. Merge provided location fields into existing location (without overwriting if not provided)
+            const newLocation = {
+                city: location.city !== undefined ? location.city : student.location?.city,
+                state: location.state !== undefined ? location.state : student.location?.state,
+                country: location.country !== undefined ? location.country : student.location?.country,
+                address: location.address !== undefined ? location.address : student.location?.address,
             };
 
-            // Ensure coordinates is properly formatted if present
-            if (student.location.coordinates &&
-                (!student.location.coordinates.type || !student.location.coordinates.coordinates)) {
+            // 2. Handle Coordinates explicitly
 
-                // If coordinates are missing or empty, reset to avoid "Point must be an array or object" error
-                if (!location.coordinates || location.coordinates.length !== 2) {
-                    student.location.coordinates = undefined; // Or set to a default valid point if absolutely required
-                } else {
-                    student.location.coordinates = {
-                        type: 'Point',
-                        coordinates: location.coordinates
-                    };
-                }
-            } else if (location.coordinates === null || (location.coordinates && location.coordinates.length === 0)) {
-                // If client sent null or empty array, remove it to prevent validation error
-                student.location.coordinates = undefined;
+            if (location.coordinates && Array.isArray(location.coordinates) && location.coordinates.length === 2 && typeof location.coordinates[0] === 'number') {
+                // CASE A: Client sent valid [lng, lat]
+                newLocation.coordinates = {
+                    type: 'Point',
+                    coordinates: location.coordinates
+                };
+            } else if (location.coordinates && location.coordinates.type === 'Point' && Array.isArray(location.coordinates.coordinates) && location.coordinates.coordinates.length === 2) {
+                // CASE B: Client sent full GeoJSON object
+                newLocation.coordinates = location.coordinates;
+            } else {
+                // CASE C: Invalid or empty coordinates -> Remove field to avoid validation error
+                newLocation.coordinates = undefined;
             }
+
+            student.location = newLocation;
         }
 
         // 5. Save (Triggers pre-save hook for profileComplete calculation)
