@@ -96,8 +96,14 @@ exports.applyToInternship = async (req, res) => {
 
         const { internshipId, coverLetter } = req.body;
 
-        if (!internshipId) {
-            return res.status(400).json({ message: 'Internship ID is required' });
+        // Strict validation for ID to prevent CastErrors
+        if (!internshipId || internshipId === 'null' || internshipId === 'undefined') {
+            return res.status(400).json({ message: 'Invalid or missing Internship ID' });
+        }
+
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(internshipId)) {
+            return res.status(400).json({ message: 'Invalid Internship ID Format' });
         }
 
         const internship = await Internship.findById(internshipId).populate('company');

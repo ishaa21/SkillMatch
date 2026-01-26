@@ -27,6 +27,15 @@ const DEFAULT_WEIGHTS = {
 };
 
 /**
+ * Helper: Safe division to prevent NaN/Infinity
+ */
+const safeDivide = (a, b) => {
+    if (!b || b === 0) return 0;
+    const result = a / b;
+    return Number.isFinite(result) ? result : 0;
+};
+
+/**
  * Calculate Jaccard Similarity between two sets
  * Jaccard(A, B) = |A ∩ B| / |A ∪ B|
  * 
@@ -40,8 +49,8 @@ const jaccardSimilarity = (set1, set2, keyFn = (x) => x) => {
         return 0;
     }
 
-    const keys1 = set1.map(keyFn).map(k => k.toLowerCase().trim());
-    const keys2 = set2.map(keyFn).map(k => k.toLowerCase().trim());
+    const keys1 = set1.map(keyFn).map(k => (k || '').toString().toLowerCase().trim());
+    const keys2 = set2.map(keyFn).map(k => (k || '').toString().toLowerCase().trim());
 
     const set1Unique = new Set(keys1);
     const set2Unique = new Set(keys2);
@@ -52,7 +61,7 @@ const jaccardSimilarity = (set1, set2, keyFn = (x) => x) => {
     // Union: all unique items from both sets
     const union = new Set([...set1Unique, ...set2Unique]);
 
-    return intersection.length / union.size;
+    return safeDivide(intersection.length, union.size);
 };
 
 /**
@@ -85,12 +94,12 @@ const calculateSkillsMatch = (studentSkills = [], requiredSkills = []) => {
     let mandatoryTotal = requiredSkills.filter(s => s.isMandatory !== false).length;
 
     requiredSkills.forEach(reqSkill => {
-        const reqName = (reqSkill.name || reqSkill).toLowerCase().trim();
+        const reqName = (reqSkill.name || reqSkill || '').toString().toLowerCase().trim();
         const reqLevel = reqSkill.level || 'Intermediate';
         const isMandatory = reqSkill.isMandatory !== false;
 
         const studentSkill = studentSkills.find(
-            s => (s.name || '').toLowerCase().trim() === reqName
+            s => (s.name || '').toString().toLowerCase().trim() === reqName
         );
 
         if (studentSkill) {
@@ -125,13 +134,13 @@ const calculateSkillsMatch = (studentSkills = [], requiredSkills = []) => {
 
     // Normalize proficiency bonus
     if (requiredSkills.length > 0) {
-        proficiencyBonus = proficiencyBonus / requiredSkills.length;
+        proficiencyBonus = safeDivide(proficiencyBonus, requiredSkills.length);
     }
 
     // Mandatory skills penalty if not all matched
     let mandatoryPenalty = 0;
     if (mandatoryTotal > 0 && mandatoryMatched < mandatoryTotal) {
-        mandatoryPenalty = (mandatoryTotal - mandatoryMatched) / mandatoryTotal * 0.3;
+        mandatoryPenalty = safeDivide((mandatoryTotal - mandatoryMatched), mandatoryTotal) * 0.3;
     }
 
     // Final skills score (0-100)
@@ -143,7 +152,7 @@ const calculateSkillsMatch = (studentSkills = [], requiredSkills = []) => {
         mandatoryPenalty,
         matchedCount: matchedSkillsCount,
         totalRequired: requiredSkills.length,
-        finalScore: Math.round(finalScore)
+        finalScore: Math.round(Number.isFinite(finalScore) ? finalScore : 0)
     };
 };
 
@@ -172,13 +181,13 @@ const calculateDomainMatch = (student, internship) => {
 
     let keywordMatches = 0;
     studentInterests.forEach(interest => {
-        const interestLower = interest.toLowerCase();
-        if (titleLower.includes(interestLower) || descLower.includes(interestLower)) {
+        const interestLower = (interest || '').toLowerCase();
+        if (interestLower && (titleLower.includes(interestLower) || descLower.includes(interestLower))) {
             keywordMatches++;
         }
     });
 
-    const keywordScore = keywordMatches / studentInterests.length;
+    const keywordScore = safeDivide(keywordMatches, studentInterests.length);
 
     // Tags similarity
     const tagsJaccard = internshipTags.length > 0 ?
@@ -187,7 +196,7 @@ const calculateDomainMatch = (student, internship) => {
     // Weighted combination
     const finalScore = (domainJaccard * 0.5 + keywordScore * 0.3 + tagsJaccard * 0.2) * 100;
 
-    return Math.round(finalScore);
+    return Math.round(Number.isFinite(finalScore) ? finalScore : 0);
 };
 
 /**
@@ -196,60 +205,21 @@ const calculateDomainMatch = (student, internship) => {
  */
 const calculateLocationMatch = (student, internship) => {
     // Remote work = perfect match
-    if (internship.workMode === 'Remote' || internship.location?.isRemote) {
-        return 100;
-    }
+    if (internship.workMode === 'Remote' || internship.location?.isRemote) return 100;
 
     // Check if student is open to relocate
-    if (student.internshipPreferences?.isOpenToRelocate) {
-        return 75; // Good match if willing to relocate
-    }
+    if (student.internshipPreferences?.isOpenToRelocate) return 75;
 
     // City/State exact match
-    const studentCity = student.location?.city?.toLowerCase();
-    const studentState = student.location?.state?.toLowerCase();
-    const internCity = internship.location?.city?.toLowerCase();
-    const internState = internship.location?.state?.toLowerCase();
+    const studentCity = (student.location?.city || '').toLowerCase();
+    const studentState = (student.location?.state || '').toLowerCase();
+    const internCity = (internship.location?.city || '').toLowerCase();
+    const internState = (internship.location?.state || '').toLowerCase();
 
-    if (studentCity && internCity && studentCity === internCity) {
-        return 100; // Same city
-    }
+    if (studentCity && internCity && studentCity === internCity) return 100;
+    if (studentState && internState && studentState === internState) return 70;
 
-    if (studentState && internState && studentState === internState) {
-        return 70; // Same state
-    }
-
-    // Check preferred locations
-    const preferredLocations = (student.internshipPreferences?.locations || [])
-        .map(loc => loc.toLowerCase());
-
-    if (preferredLocations.length > 0) {
-        if (preferredLocations.includes(internCity)) {
-            return 100;
-        }
-        if (preferredLocations.includes(internState)) {
-            return 75;
-        }
-    }
-
-    // Coordinate-based distance calculation (if available)
-    if (student.location?.coordinates?.coordinates &&
-        internship.location?.coordinates?.coordinates) {
-        const distance = calculateHaversineDistance(
-            student.location.coordinates.coordinates,
-            internship.location.coordinates.coordinates
-        );
-
-        // Distance-based scoring (in km)
-        if (distance < 10) return 100;
-        if (distance < 50) return 80;
-        if (distance < 100) return 60;
-        if (distance < 300) return 40;
-        return 20;
-    }
-
-    // Default: no location match
-    return 30; // Slight match as it's still in India
+    return 30; // Default
 };
 
 /**
@@ -281,7 +251,6 @@ const toRad = (degrees) => degrees * (Math.PI / 180);
 const calculateProficiencyMatch = (student, internship) => {
     let score = 50; // Base score
 
-    // Education requirement match
     if (internship.requirements?.education) {
         const reqDegree = internship.requirements.education.degree;
         const studentDegree = student.degree;
@@ -291,30 +260,23 @@ const calculateProficiencyMatch = (student, internship) => {
                 score += 20;
             }
         }
-
-        // Field of study match
-        const reqFields = internship.requirements.education.field || [];
-        if (reqFields.length > 0 && student.education && student.education.length > 0) {
-            const studentFields = student.education.map(e => e.fieldOfStudy || '');
-            const fieldMatch = jaccardSimilarity(studentFields, reqFields);
-            score += fieldMatch * 15;
-        }
     }
 
     // Experience requirement match
     if (internship.requirements?.experience) {
         const minExpRequired = internship.requirements.experience.min || 0;
-        const studentExpYears = (student.experience || []).length; // Simplified: count of experiences
+        const studentExpYears = (student.experience || []).length;
 
         if (studentExpYears >= minExpRequired) {
             score += 15;
         } else if (!internship.requirements.experience.isRequired) {
-            score += 10; // Not critical
+            score += 10;
         }
     } else {
-        score += 15; // No experience required
+        score += 15;
     }
 
+    // Use field match logic from original if complex, or simplify
     return Math.min(100, Math.round(score));
 };
 
@@ -324,34 +286,26 @@ const calculateProficiencyMatch = (student, internship) => {
 const calculateLogisticsMatch = (student, internship) => {
     let score = 0;
 
-    // Work mode preference
+    // Work Mode
     const studentPrefType = student.internshipPreferences?.type;
     const internWorkMode = internship.workMode;
 
-    if (!studentPrefType || studentPrefType === 'Any') {
+    if (!studentPrefType || studentPrefType === 'Any' || studentPrefType === internWorkMode) {
         score += 50;
-    } else if (studentPrefType === internWorkMode) {
-        score += 50;
-    } else if (studentPrefType === 'Hybrid' && (internWorkMode === 'Remote' || internWorkMode === 'On-site')) {
-        score += 35;
     } else if (internWorkMode === 'Remote') {
-        score += 40; // Remote is generally flexible
+        score += 40;
     } else {
-        score += 20; // Mismatch
+        score += 20;
     }
 
-    // Stipend expectation
+    // Stipend
     const minStipendExpected = student.internshipPreferences?.minStipend || 0;
-    const maxStipendExpected = student.internshipPreferences?.maxStipend || Infinity;
-    const internStipendMin = internship.stipend?.min || internship.stipend?.amount || 0;
-    const internStipendMax = internship.stipend?.max || internStipendMin;
+    const internStipendMax = internship.stipend?.max || internship.stipend?.amount || 0;
 
-    if (internStipendMax >= minStipendExpected && internStipendMin <= maxStipendExpected) {
-        score += 50; // Within range
-    } else if (internStipendMax >= minStipendExpected * 0.8) {
-        score += 30; // Close to expectation
+    if (internStipendMax >= minStipendExpected) {
+        score += 50;
     } else {
-        score += 10; // Below expectation
+        score += 20;
     }
 
     return Math.min(100, Math.round(score));
@@ -368,6 +322,15 @@ const calculateLogisticsMatch = (student, internship) => {
 const calculateMatchScore = (student, internship, customWeights = null) => {
     const weights = customWeights || DEFAULT_WEIGHTS;
 
+    // Check if total weights are valid
+    const totalWeight = (weights.skills || 0) + (weights.domainInterest || 0) +
+        (weights.location || 0) + (weights.proficiency || 0) +
+        (weights.logistics || 0);
+
+    if (totalWeight <= 0) {
+        return { overallScore: 0, breakdown: {} };
+    }
+
     // Calculate individual component scores
     const skillsMatch = calculateSkillsMatch(
         student.skills,
@@ -380,15 +343,17 @@ const calculateMatchScore = (student, internship, customWeights = null) => {
     const logisticsScore = calculateLogisticsMatch(student, internship);
 
     // Calculate weighted overall score
-    let overallScore = skillsMatch.finalScore * weights.skills +
-        domainScore * weights.domainInterest +
-        locationScore * weights.location +
-        proficiencyScore * weights.proficiency +
-        logisticsScore * weights.logistics;
+    let overallScore = skillsMatch.finalScore * (weights.skills || 0) +
+        domainScore * (weights.domainInterest || 0) +
+        locationScore * (weights.location || 0) +
+        proficiencyScore * (weights.proficiency || 0) +
+        logisticsScore * (weights.logistics || 0);
+
+    // Final Normalize by total weight (usually 1.0 but just in case)
+    overallScore = safeDivide(overallScore, totalWeight);
 
     // Sanitize Score
-    if (Number.isNaN(overallScore) || !Number.isFinite(overallScore)) {
-        console.error('AI Match Score corrupted (NaN/Infinity). Resetting to 0.');
+    if (!Number.isFinite(overallScore) || Number.isNaN(overallScore)) {
         overallScore = 0;
     }
 
@@ -397,26 +362,26 @@ const calculateMatchScore = (student, internship, customWeights = null) => {
         breakdown: {
             skills: {
                 score: skillsMatch.finalScore,
-                weight: weights.skills,
+                weight: weights.skills || 0,
                 jaccardSimilarity: skillsMatch.jaccardScore,
                 matchedSkills: skillsMatch.matchedCount,
                 totalRequired: skillsMatch.totalRequired
             },
             domainInterest: {
                 score: domainScore,
-                weight: weights.domainInterest
+                weight: weights.domainInterest || 0
             },
             location: {
                 score: locationScore,
-                weight: weights.location
+                weight: weights.location || 0
             },
             proficiency: {
                 score: proficiencyScore,
-                weight: weights.proficiency
+                weight: weights.proficiency || 0
             },
             logistics: {
                 score: logisticsScore,
-                weight: weights.logistics
+                weight: weights.logistics || 0
             }
         }
     };
