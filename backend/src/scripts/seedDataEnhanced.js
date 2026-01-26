@@ -121,11 +121,21 @@ const seedData = async () => {
                 // Distribute post dates over last 30 days largely, some older
                 const postedAt = getRandomDate(new Date(Date.now() - 45 * 24 * 60 * 60 * 1000), new Date());
 
+                const stipends = [
+                    { min: 10000 + (j * 5000), max: 10000 + (j * 5000), amount: 10000 + (j * 5000), currency: 'INR', period: 'Month' },
+                    { min: 15000 + (j * 2000), max: 20000 + (j * 2000), currency: 'INR', period: 'Month' },
+                    { min: 8000, max: 12000, currency: 'INR', period: 'Month' },
+                    { min: 0, max: 0, period: 'Unpaid', currency: 'INR' },
+                    { min: 25000, max: 25000, amount: 25000, currency: 'INR', period: 'Month' }
+                ];
+
+                const stipend = stipends[j % stipends.length];
+
                 const internship = await Internship.create({
                     company: company._id,
                     title: `${company.industry} Intern - Role ${j}`,
                     description: `Join us to work on exciting ${company.industry} projects. Great learning curve.`,
-                    stipend: { amount: 10000 + (j * 5000), currency: 'INR', interval: 'Monthly' },
+                    stipend: stipend,
                     location: {
                         city: loc.city,
                         country: 'India',

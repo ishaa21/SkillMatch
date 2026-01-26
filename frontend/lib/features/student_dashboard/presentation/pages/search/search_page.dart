@@ -30,7 +30,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
   Set<String> _appliedInternshipIds = {};
   bool _isLoading = true;
   bool _hasError = false;
-  bool _isSearching = false;
+
 
   final List<String> _filterOptions = ['All', 'Remote', 'Hybrid', 'On-site', 'High Pay'];
   final List<String> _durationOptions = ['Any', '1 Month', '3 Months', '6 Months'];
@@ -118,7 +118,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
   }
 
   void _performSearch() {
-    setState(() => _isSearching = true);
+
     
     final query = _searchController.text.toLowerCase().trim();
     List<dynamic> results = List.from(_allInternships);
@@ -173,7 +173,6 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
 
     setState(() {
       _searchResults = results;
-      _isSearching = false;
     });
   }
 
@@ -669,160 +668,5 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (selected) {
-          setState(() => _selectedFilter = selected ? label : 'All');
-          _performSearch();
-        },
-        selectedColor: AppColors.deepGreen,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected ? Colors.transparent : Colors.grey.shade300,
-          ),
-        ),
-      ),
-    );
-  }
 
-  void _showFilterModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Filters',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setModalState(() {
-                        _stipendRange = const RangeValues(0, 10000);
-                        _selectedDuration = 'Any';
-                      });
-                    },
-                    child: const Text('Reset'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              
-              // Stipend Range
-              Text(
-                'Stipend Range',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '\$${_stipendRange.start.round()}',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                  Text(
-                    '\$${_stipendRange.end.round()}+',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-              RangeSlider(
-                values: _stipendRange,
-                min: 0,
-                max: 10000,
-                divisions: 20,
-                activeColor: AppColors.deepGreen,
-                labels: RangeLabels(
-                  '\$${_stipendRange.start.round()}',
-                  '\$${_stipendRange.end.round()}',
-                ),
-                onChanged: (values) {
-                  setModalState(() => _stipendRange = values);
-                },
-              ),
-              const SizedBox(height: 24),
-              
-              // Duration
-              Text(
-                'Duration',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _durationOptions.map((duration) {
-                  final isSelected = _selectedDuration == duration;
-                  return ChoiceChip(
-                    label: Text(duration),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setModalState(() => _selectedDuration = duration);
-                    },
-                    selectedColor: AppColors.deepGreen,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 32),
-              
-              // Apply Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _performSearch();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: const Text(
-                    'Apply Filters',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

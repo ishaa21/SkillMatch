@@ -158,8 +158,6 @@ class _StudentDashboardState extends State<StudentDashboard>
 
     try {
       final token = await _storage.read(key: 'auth_token');
-      // If no token, maybe use public endpoint? But Dashboard implies logged in.
-      // We'll assume logged in for now.
       
       final response = await _dio.get(
         '${ApiConstants.baseUrl}/internships/recommendations',
@@ -169,9 +167,33 @@ class _StudentDashboardState extends State<StudentDashboard>
       if (response.statusCode == 200) {
         var rawList = response.data is List ? List.from(response.data) : [];
 
-        // Backend already provides matchPercentage, but we can verify/fallback
-        // rawList is already sorted by backend usually
+        // Normalize and Enrich Data
+        for (var internship in rawList) {
+          // 1. Ensure matchPercentage exists
+          if (internship['matchPercentage'] == null) {
+             if (internship['matchScore'] != null) {
+               // Assuming matchScore is 0-100 or 0-1. Let's assume 0-100 based on previous context, 
+               // but if its 0-1 we multiply. AI Matcher usually returns 0-100.
+               internship['matchPercentage'] = num.tryParse(internship['matchScore'].toString()) ?? 0;
+             } else {
+               // Calculate locally if missing
+               internship['matchPercentage'] = _calculateMatchPercentage(internship);
+             }
+          }
+          
+          // 2. Normalize ID
+          if (internship['id'] == null && internship['_id'] != null) {
+            internship['id'] = internship['_id'];
+          }
+        }
         
+        // Sort by match percentage (descending)
+        rawList.sort((a, b) {
+           final scoreA = num.tryParse(a['matchPercentage'].toString()) ?? 0;
+           final scoreB = num.tryParse(b['matchPercentage'].toString()) ?? 0;
+           return scoreB.compareTo(scoreA);
+        });
+
         if (mounted) {
           setState(() {
             _allInternships = rawList;
@@ -204,7 +226,7 @@ class _StudentDashboardState extends State<StudentDashboard>
   // ===================== CALCULATE MATCH PERCENTAGE =====================
   int _calculateMatchPercentage(Map<String, dynamic> internship) {
     if (_userSkills.isEmpty) {
-      // Random score if no user skills
+      // Fallback random score if no user skills to compare against
       return 60 + (internship['_id'].hashCode % 35);
     }
 
@@ -229,37 +251,53 @@ class _StudentDashboardState extends State<StudentDashboard>
     return (baseMatch + skillMatchPercentage).clamp(40, 99);
   }
 
+  int _getStipendAmount(Map<String, dynamic> internship) {
+    final stipend = internship['stipend'];
+    if (stipend == null) return 0;
+    if (stipend is Map) {
+       // Check keys prioritized: amount -> max -> min
+       if (stipend['amount'] != null) return num.tryParse(stipend['amount'].toString())?.toInt() ?? 0;
+       if (stipend['max'] != null) return num.tryParse(stipend['max'].toString())?.toInt() ?? 0;
+       if (stipend['min'] != null) return num.tryParse(stipend['min'].toString())?.toInt() ?? 0;
+       return 0;
+    }
+    if (stipend is int) return stipend;
+    if (stipend is num) return stipend.toInt();
+    return 0;
+  }
+
   // ===================== APPLY FILTER =====================
   List<dynamic> _applyFilter(List<dynamic> internships) {
     if (_selectedFilter == 'All') {
       return internships;
-    } else if (_selectedFilter == 'Remote') {
-      return internships.where((i) => (i['workMode']?.toString().toLowerCase() ?? '') == 'remote').toList();
-    } else if (_selectedFilter == 'Hybrid') {
-      return internships.where((i) => (i['workMode']?.toString().toLowerCase() ?? '') == 'hybrid').toList();
-    } else if (_selectedFilter == 'On-site') {
-      return internships.where((i) {
+    } 
+    
+    return internships.where((i) {
+      // 1. Work Mode Filter
+      if (_selectedFilter == 'Remote') {
+        return (i['workMode']?.toString().toLowerCase() ?? '') == 'remote';
+      }
+      if (_selectedFilter == 'Hybrid') {
+        return (i['workMode']?.toString().toLowerCase() ?? '') == 'hybrid';
+      }
+      if (_selectedFilter == 'On-site') {
         final mode = i['workMode']?.toString().toLowerCase() ?? '';
         return mode == 'onsite' || mode == 'on-site';
-      }).toList();
-    } else if (_selectedFilter == '\$ High Pay') {
-      return internships.where((i) {
-        // Handle both normalized 'stipend' Map and raw structures if any
-        final stipend = i['stipend'];
-        if (stipend is Map) {
-          final max = num.tryParse(stipend['max']?.toString() ?? 
-                                  stipend['amount']?.toString() ?? '0') ?? 0;
-          return max >= 10000;
-        }
-        return false;
-      }).toList();
-    } else if (_selectedFilter == 'Best Match') {
-      return internships.where((i) {
+      }
+      
+      // 2. High Pay Filter
+      if (_selectedFilter == '\$ High Pay') {
+        return _getStipendAmount(i) >= 10000;
+      }
+      
+      // 3. Best Match Filter
+      if (_selectedFilter == 'Best Match') {
         final score = num.tryParse(i['matchPercentage']?.toString() ?? '0') ?? 0;
         return score >= 75;
-      }).toList();
-    }
-    return internships;
+      }
+      
+      return true;
+    }).toList();
   }
 
   void _onFilterChanged(String filter) {
