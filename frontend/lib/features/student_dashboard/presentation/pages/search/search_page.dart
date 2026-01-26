@@ -121,7 +121,6 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
     setState(() => _isSearching = true);
     
     final query = _searchController.text.toLowerCase().trim();
-    
     List<dynamic> results = List.from(_allInternships);
 
     // Text search
@@ -139,19 +138,21 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
       }).toList();
     }
 
-    // Filter by work mode
+    // Filter by work mode (Case Insensitive)
     if (_selectedFilter != 'All') {
       if (_selectedFilter == 'High Pay') {
         results = results.where((i) => 
-          (_getStipendAmount(i)) > 5000
+          (_getStipendAmount(i)) >= 10000
         ).toList();
       } else {
         results = results.where((i) {
-          final workMode = (i['workMode'] ?? '').toString();
-          if (_selectedFilter == 'On-site') {
-            return workMode == 'Onsite' || workMode == 'On-site';
+          final workMode = (i['workMode'] ?? '').toString().toLowerCase();
+          final filter = _selectedFilter.toLowerCase();
+          
+          if (filter == 'on-site' || filter == 'onsite') {
+            return workMode == 'onsite' || workMode == 'on-site';
           }
-          return workMode == _selectedFilter;
+          return workMode == filter;
         }).toList();
       }
     }
@@ -192,19 +193,245 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
   int _getStipendAmount(Map<String, dynamic> internship) {
     final stipend = internship['stipend'];
     if (stipend == null) return 0;
-    if (stipend is Map) return stipend['amount'] ?? 0;
+    if (stipend is Map) {
+       // Check keys prioritized: amount -> max -> min
+       if (stipend['amount'] != null) return num.tryParse(stipend['amount'].toString())?.toInt() ?? 0;
+       if (stipend['max'] != null) return num.tryParse(stipend['max'].toString())?.toInt() ?? 0;
+       if (stipend['min'] != null) return num.tryParse(stipend['min'].toString())?.toInt() ?? 0;
+       return 0;
+    }
     if (stipend is int) return stipend;
+    if (stipend is num) return stipend.toInt();
     return 0;
   }
 
   void _clearFilters() {
     setState(() {
       _selectedFilter = 'All';
-      _stipendRange = const RangeValues(0, 10000);
+      _stipendRange = const RangeValues(0, 100000);
       _selectedDuration = 'Any';
       _searchController.clear();
     });
     _performSearch();
+  }
+
+  void _showFilterModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Filter Internships',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Work Mode Filter
+                  Text(
+                    'Work Mode',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _filterOptions.map((filter) {
+                      return ChoiceChip(
+                        label: Text(filter),
+                        selected: _selectedFilter == filter,
+                        selectedColor: AppColors.primary.withOpacity(0.1),
+                        onSelected: (selected) {
+                          setModalState(() {
+                            _selectedFilter = selected ? filter : 'All';
+                          });
+                        },
+                        labelStyle: TextStyle(
+                          color: _selectedFilter == filter ? AppColors.primary : Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        side: BorderSide(
+                          color: _selectedFilter == filter ? AppColors.primary : Colors.grey.shade300,
+                        ),
+                        backgroundColor: Colors.white,
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Stipend Range
+                  Text(
+                    'Stipend Range',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '\$${_stipendRange.start.round()}',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      Text(
+                        '\$${_stipendRange.end.round()}+',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                  RangeSlider(
+                    values: _stipendRange,
+                    min: 0,
+                    max: 100000,
+                    divisions: 20,
+                    activeColor: AppColors.deepGreen,
+                    inactiveColor: Colors.grey.shade300,
+                    onChanged: (RangeValues newValues) {
+                      setModalState(() {
+                        _stipendRange = newValues;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Duration Filter
+                  Text(
+                    'Duration',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _durationOptions.map((duration) {
+                      return ChoiceChip(
+                        label: Text(duration),
+                        selected: _selectedDuration == duration,
+                        selectedColor: AppColors.primary.withOpacity(0.1),
+                        onSelected: (selected) {
+                          setModalState(() {
+                            _selectedDuration = selected ? duration : 'Any';
+                          });
+                        },
+                        labelStyle: TextStyle(
+                          color: _selectedDuration == duration ? AppColors.primary : Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        side: BorderSide(
+                          color: _selectedDuration == duration ? AppColors.primary : Colors.grey.shade300,
+                        ),
+                        backgroundColor: Colors.white,
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Apply and Clear Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setModalState(() {
+                              _clearFilters();
+                            });
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(color: AppColors.primary),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Clear All'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _performSearch();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Apply Filters'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      // Refresh the main page results after modal closes
+      setState(() {});
+    });
+  }
+
+  Widget _buildFilterChip(String filter) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: ChoiceChip(
+        label: Text(filter),
+        selected: _selectedFilter == filter,
+        selectedColor: AppColors.primary.withOpacity(0.1),
+        onSelected: (selected) {
+          setState(() {
+            _selectedFilter = selected ? filter : 'All';
+            _performSearch();
+          });
+        },
+        labelStyle: TextStyle(
+          color: _selectedFilter == filter ? AppColors.primary : Colors.black87,
+          fontWeight: FontWeight.w500,
+        ),
+        side: BorderSide(
+          color: _selectedFilter == filter ? AppColors.primary : Colors.grey.shade300,
+        ),
+        backgroundColor: Colors.white,
+      ),
+    );
   }
 
   @override
