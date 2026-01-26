@@ -400,7 +400,8 @@ class _StudentDashboardState extends State<StudentDashboard>
   }
 
   Future<void> _handleQuickApply(Map<String, dynamic> internship) async {
-    final internshipId = internship['_id'].toString();
+    // Handle both normalized ('id') and raw ('_id') formats
+    final internshipId = (internship['id'] ?? internship['_id']).toString();
     
     // Optimistic Update
     setState(() {

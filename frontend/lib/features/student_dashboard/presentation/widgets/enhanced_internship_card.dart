@@ -208,6 +208,9 @@ class EnhancedInternshipCard extends StatelessWidget {
 
   String _getCompanyName() {
     try {
+      // Check root level first (Normalized)
+      if (internship['companyName'] != null) return internship['companyName'].toString();
+
       if (internship['companyDetails'] != null && internship['companyDetails'] is Map) {
         return internship['companyDetails']['companyName']?.toString() ?? 'Company';
       }
@@ -223,7 +226,11 @@ class EnhancedInternshipCard extends StatelessWidget {
 
   String _getStipend() {
     try {
-      final stipend = internship['stipend'];
+      var stipend = internship['stipend'];
+      
+      // Fallback for normalized data that might have just an amount or different structure?
+      // Actually normalized data sends a Map.
+      
       if (stipend == null) return 'Unpaid';
       
       // Expected structure: {min, max, currency, period}
