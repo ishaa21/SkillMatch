@@ -123,10 +123,15 @@ class _ApprovalsSectionState extends State<ApprovalsSection> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05), 
+            blurRadius: 10,
+            offset: const Offset(0, 4)
+          ),
         ],
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Column(
         children: [
@@ -137,7 +142,7 @@ class _ApprovalsSectionState extends State<ApprovalsSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _companyAvatar(company.companyName),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(child: _companyInfo(company)),
               ],
             ),
@@ -147,44 +152,54 @@ class _ApprovalsSectionState extends State<ApprovalsSection> {
 
           // ---------- CONTACT ----------
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: _contactRow(company.email),
           ),
 
-          const Divider(height: 1),
-
-          // ---------- ACTIONS (COLUMN ON MOBILE ALWAYS SAFE) ----------
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+          // ---------- ACTIONS ----------
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+            ),
+            child: Row(
               children: [
-                _fullWidthButton(
-                  label: 'Verify MCA',
-                  icon: Icons.verified_user_outlined,
-                  color: Colors.blue,
-                  onTap: isProcessing
-                      ? null
-                      : () => _showVerifyDialog(company.id),
+                Expanded(
+                  child: _actionButton(
+                    label: 'Verify MCA',
+                    icon: Icons.verified_user_outlined,
+                    color: Colors.blue.shade700,
+                    isOutlined: true,
+                    onTap: isProcessing
+                        ? null
+                        : () => _showVerifyDialog(company.id),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                _fullWidthButton(
-                  label: 'Reject',
-                  icon: Icons.close,
-                  color: Colors.red,
-                  onTap: isProcessing
-                      ? null
-                      : () => _showRejectDialog(
-                          company.id, company.companyName),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _actionButton(
+                    label: 'Reject',
+                    icon: Icons.close,
+                    color: Colors.red.shade600,
+                    isOutlined: true,
+                    onTap: isProcessing
+                        ? null
+                        : () => _showRejectDialog(
+                            company.id, company.companyName),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                _fullWidthButton(
-                  label: 'Approve',
-                  icon: Icons.check_circle_outline,
-                  color: AppColors.deepGreen,
-                  filled: true,
-                  onTap: isProcessing
-                      ? null
-                      : () => _handleAction(company.id, 'approve'),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _actionButton(
+                    label: 'Approve',
+                    icon: Icons.check,
+                    color: AppColors.deepGreen,
+                    isOutlined: false,
+                    onTap: isProcessing
+                        ? null
+                        : () => _showApproveDialog(company.id, company.companyName),
+                  ),
                 ),
               ],
             ),
@@ -193,6 +208,67 @@ class _ApprovalsSectionState extends State<ApprovalsSection> {
       ),
     );
   }
+
+  Widget _actionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required bool isOutlined,
+    VoidCallback? onTap,
+  }) {
+    final style = isOutlined
+        ? OutlinedButton.styleFrom(
+            foregroundColor: color,
+            side: BorderSide(color: color.withOpacity(0.5)),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          )
+        : ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 0,
+          );
+
+    return isOutlined 
+      ? OutlinedButton(
+          onPressed: onTap,
+          style: style,
+          child: Icon(icon, size: 20),
+        )
+      : ElevatedButton(
+          onPressed: onTap,
+          style: style,
+          child: Icon(icon, size: 20),
+        );
+  }
+
+  void _showApproveDialog(String id, String name) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Approve Company?'),
+        content: Text('Are you sure you want to approve "$name"?\nThis will allow them to post internships.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleAction(id, 'approve');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.deepGreen,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Approve'),
+          ),
+        ],
+      ),
+    );
 
   // ================= SUB WIDGETS =================
 

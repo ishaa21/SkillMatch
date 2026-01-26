@@ -325,13 +325,22 @@ class CompanyUser {
   });
 
   factory CompanyUser.fromJson(Map<String, dynamic> json) {
+    String loc = '';
+    if (json['location'] is Map) {
+      final l = json['location'];
+      loc = '${l['city'] ?? ''}, ${l['country'] ?? ''}';
+      if (loc.trim() == ',') loc = 'Unknown Location';
+    } else {
+      loc = json['location']?.toString() ?? '';
+    }
+
     return CompanyUser(
       id: json['_id']?.toString() ?? '',
       userId: json['user'] is Map ? (json['user']['_id']?.toString() ?? '') : (json['user']?.toString() ?? ''),
       companyName: json['companyName']?.toString() ?? 'Unknown Company',
       email: json['user'] is Map ? (json['user']['email']?.toString() ?? 'No email') : 'No email',
       industry: json['industry']?.toString() ?? 'Industry not specified',
-      location: json['location']?.toString() ?? '',
+      location: loc,
       isApproved: json['isApproved'] == true,
       isSuspended: json['isSuspended'] == true,
     );

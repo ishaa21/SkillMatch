@@ -102,7 +102,15 @@ const seedData = async () => {
                 companyDescription: `Leading innovator in ${industry} providing cutting-edge solutions worldwide.`,
                 description: `Leading innovator in ${industry} providing cutting-edge solutions worldwide.`,
                 website: `https://techgiant${i}.com`,
-                location: `${loc.city}, India`,
+                location: {
+                    city: loc.city,
+                    country: 'India',
+                    coordinates: {
+                        type: 'Point',
+                        coordinates: loc.coords
+                    },
+                    address: `Tech Park, ${loc.city}`
+                },
                 industry: industry,
                 isApproved: isApproved, // Mixed status
                 createdAt: createdAt
