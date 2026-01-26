@@ -1,21 +1,28 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const User = require('../models/User');
 const Student = require('../models/Student');
 const Company = require('../models/Company');
 const Internship = require('../models/Internship');
 const Application = require('../models/Application');
 
-// Load env vars
-dotenv.config({ path: '../../.env' });
+// Load env vars (try multiple paths to be safe)
+// Path is relative to where script is executed. 
+// If run from backend root via `npm run seed`: src/scripts/seedData.js -> need ../../.env
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/internship_app');
-        console.log('MongoDB Connected for Seeding');
+        const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+        if (!uri) {
+            throw new Error('MONGODB_URI is not defined in .env');
+        }
+        await mongoose.connect(uri);
+        console.log(`✅ MongoDB Connected to: ${uri.split('@')[1] || uri}`); // Log masked URI
     } catch (err) {
-        console.error(err);
+        console.error('❌ DB Connection Error:', err.message);
         process.exit(1);
     }
 };
@@ -24,14 +31,24 @@ const seedData = async () => {
     await connectDB();
 
     try {
-        console.log('Clearing existing data...');
-        await User.deleteMany({});
-        await Student.deleteMany({});
-        await Company.deleteMany({});
-        await Internship.deleteMany({});
-        await Application.deleteMany({});
+        console.log('⚠️ Clearing existing data...');
+        // await User.deleteMany({});
+        // await Student.deleteMany({});
+        // await Company.deleteMany({});
+        // await Internship.deleteMany({});
+        // await Application.deleteMany({});
 
-        console.log('Creating Users...');
+        // --- Selective Clear (Optional: Comment out to append instead of wipe) ---
+        // For fresh demo, wipe is best.
+        await Promise.all([
+            User.deleteMany({}),
+            Student.deleteMany({}),
+            Company.deleteMany({}),
+            Internship.deleteMany({}),
+            Application.deleteMany({})
+        ]);
+
+        console.log('🌱 Creating Users...');
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash('password123', salt);
 
@@ -71,14 +88,7 @@ const seedData = async () => {
             isVerified: true
         });
 
-        const userStudent3 = await User.create({
-            email: 'rohan.verma@gmail.com',
-            password: hashedPassword,
-            role: 'student',
-            isVerified: true
-        });
-
-        console.log('Creating Profiles...');
+        console.log('🌱 Creating Profiles...');
 
         // --- Companies ---
         const company1 = await Company.create({
@@ -102,6 +112,7 @@ const seedData = async () => {
         });
 
         // --- Students ---
+        // Note: We omit coordinates to let schema default or remain undefined to avoid GeoJSON errors
         const student1 = await Student.create({
             user: userStudent1._id,
             fullName: 'Aarav Patel',
@@ -117,6 +128,11 @@ const seedData = async () => {
                 type: 'Remote',
                 locations: ['Mumbai', 'Remote'],
                 minStipend: 15000
+            },
+            location: {
+                city: 'Mumbai',
+                country: 'India'
+                // coordinates omitted intentionally to avoid 2dsphere errors if lat/long unknown
             },
             availability: {
                 status: 'Available',
@@ -139,28 +155,14 @@ const seedData = async () => {
                 type: 'Any',
                 locations: ['Bangalore', 'Remote'],
                 minStipend: 25000
+            },
+            location: {
+                city: 'Bangalore',
+                country: 'India'
             }
         });
 
-        const student3 = await Student.create({
-            user: userStudent3._id,
-            fullName: 'Rohan Verma',
-            university: 'VIT Vellore',
-            course: 'B.Tech Electronics',
-            skills: [
-                { name: 'Flutter', proficiency: 'Intermediate' },
-                { name: 'Dart', proficiency: 'Intermediate' },
-                { name: 'Firebase', proficiency: 'Beginner' }
-            ],
-            interests: ['Mobile App Dev', 'UI/UX'],
-            internshipPreferences: {
-                type: 'Remote',
-                locations: ['Chennai', 'Remote'],
-                minStipend: 10000
-            }
-        });
-
-        console.log('Creating Internships...');
+        console.log('🌱 Creating Internships...');
 
         // --- Internships ---
         const internship1 = await Internship.create({
@@ -197,26 +199,9 @@ const seedData = async () => {
             postedAt: new Date()
         });
 
-        const internship3 = await Internship.create({
-            company: company1._id,
-            title: 'Flutter Mobile Dev',
-            description: 'Build responsive mobile apps for our client portfolio.',
-            stipend: { amount: 15000, currency: 'INR', interval: 'Monthly' },
-            location: 'Remote',
-            workMode: 'Remote',
-            duration: '4 Months',
-            skillsRequired: [
-                { name: 'Flutter', level: 'Intermediate' }
-            ],
-            domains: ['Mobile App Dev'],
-            isActive: true,
-            postedAt: new Date()
-        });
-
-        console.log('Creating Applications...');
+        console.log('🌱 Creating Applications...');
 
         // --- Applications ---
-        // Aarav applies to Full Stack (Match!)
         await Application.create({
             student: student1._id,
             internship: internship1._id,
@@ -225,37 +210,23 @@ const seedData = async () => {
             aiMatchScore: 92
         });
 
-        // Diya applies to AI Research (Perfect Match!)
         await Application.create({
             student: student2._id,
             internship: internship2._id,
             company: company2._id,
-            status: 'Shortlisted', // Company liked her
+            status: 'Shortlisted',
             aiMatchScore: 98
-        });
-
-        // Rohan applies to Flutter (Good Match) but withdrawn example? No, let's say Rejected for variety or Hired.
-        // Let's say Hired.
-        await Application.create({
-            student: student3._id,
-            internship: internship3._id,
-            company: company1._id,
-            status: 'Hired',
-            aiMatchScore: 85
         });
 
         console.log('✅ Data Seeding Completed Successfully!');
         console.log('--------------------------------------------------');
-        console.log('Admin Email: admin@skillmatch.com');
-        console.log('Company 1 Email: hr@techindia.com');
-        console.log('Company 2 Email: careers@innovatebangalore.com');
-        console.log('Student 1 Email: aarav.patel@gmail.com');
-        console.log('Student 2 Email: diya.sharma@gmail.com');
-        console.log('All Passwords: password123');
+        console.log('Admin:    admin@skillmatch.com      / password123');
+        console.log('Company:  hr@techindia.com          / password123');
+        console.log('Student:  aarav.patel@gmail.com     / password123');
         console.log('--------------------------------------------------');
         process.exit();
     } catch (err) {
-        console.error(err);
+        console.error('❌ Seeding Error:', err);
         process.exit(1);
     }
 };
