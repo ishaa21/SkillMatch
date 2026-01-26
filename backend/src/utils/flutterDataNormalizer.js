@@ -11,7 +11,13 @@ const normalizeInternshipForFlutter = (internObj) => {
         // Core Info
         title: internObj.title || '',
         description: internObj.description || '',
-        location: internObj.location || '',
+        location: (() => {
+            if (internObj.location && typeof internObj.location === 'object') {
+                if (internObj.location.city) return `${internObj.location.city}, ${internObj.location.country || 'India'}`;
+                return 'Remote';
+            }
+            return internObj.location || 'Remote';
+        })(),
         workMode: internObj.workMode || 'Remote',
         duration: internObj.duration || '',
 

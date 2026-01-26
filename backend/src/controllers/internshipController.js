@@ -87,11 +87,21 @@ exports.getRecommendedInternships = async (req, res) => {
         const weights = aiConfig?.weights || DEFAULT_WEIGHTS;
 
         // 5️⃣ Rank internships using AI
-        const rankedInternships = rankInternshipsForStudent(
+        let rankedInternships = rankInternshipsForStudent(
             student,
             internships,
             weights
         );
+
+        // FALLBACK: If AI ranking filters everything out or is empty, return active internships
+        if (rankedInternships.length === 0) {
+            const allActive = await Internship.find({ isActive: true }).sort({ createdAt: -1 }).limit(20).populate('company');
+            rankedInternships = allActive.map(i => ({
+                ...i.toObject(),
+                matchPercentage: 70, // Default generous match score for fallback
+                matchScore: 70
+            }));
+        }
 
         // 6️⃣ Normalize response for Flutter
         const normalizedInternships = rankedInternships.map(
