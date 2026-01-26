@@ -46,7 +46,7 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
 
       if (mounted && response.statusCode == 200) {
         final applications = response.data as List;
-        final internshipId = widget.internship['_id']?.toString() ?? '';
+        final internshipId = (widget.internship['id'] ?? widget.internship['_id'])?.toString() ?? '';
         
         final alreadyApplied = applications.any((app) {
           final appInternshipId = app['internship']?['_id']?.toString() ?? 
@@ -73,10 +73,12 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
     setState(() => _isApplying = true);
     try {
       final token = await _storage.read(key: 'auth_token');
+      final internshipId = widget.internship['id'] ?? widget.internship['_id'];
+
       await _dio.post(
         '${ApiConstants.baseUrl}/applications',
         data: {
-          'internshipId': widget.internship['_id'],
+          'internshipId': internshipId,
           'coverLetter': 'I am interested in this role and believe my skills align well with your requirements.'
         },
         options: Options(headers: {'Authorization': 'Bearer $token'}),
