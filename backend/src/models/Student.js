@@ -51,9 +51,9 @@ const studentSchema = new mongoose.Schema({
     location: {
         city: String,
         state: String,
-        country: { type: String, default: 'India' },
+        country: { type: String },
         coordinates: {
-            type: { type: String, enum: ['Point'], default: 'Point' },
+            type: { type: String, enum: ['Point'] },
             coordinates: [Number] // [longitude, latitude]
         },
         address: String
