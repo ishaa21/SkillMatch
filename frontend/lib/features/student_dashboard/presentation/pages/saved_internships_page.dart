@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../core/constants/api_constants.dart';
@@ -60,18 +61,14 @@ class _SavedInternshipsPageState extends State<SavedInternshipsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Saved Internships'),
-        backgroundColor: Colors.white,
+        title: Text('Saved Internships', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, letterSpacing: -0.5, color: AppColors.textDark)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Navigator.pop(context),
-        ),
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
         ),
       ),
       body: _isLoading

@@ -7,10 +7,10 @@ class ApiConstants {
   static const String baseUrl = "https://skillmatch-iy1r.onrender.com/api";
 
   // Timeout configurations (in seconds)
-  // Increased to 60 seconds to accommodate slow network connections
-  static const int connectTimeoutSeconds = 60; 
-  static const int receiveTimeoutSeconds = 60;
-  static const int sendTimeoutSeconds = 60;
+  // Increased to 120 seconds to accommodate Render free-tier cold starts
+  static const int connectTimeoutSeconds = 120; 
+  static const int receiveTimeoutSeconds = 120;
+  static const int sendTimeoutSeconds = 120;
 
 
   static String get login => '$baseUrl/auth/login';

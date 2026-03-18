@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/dio_client.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -6,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/asset_constants.dart';
+import '../../../../core/widgets/floating_nav_bar.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/enhanced_internship_card.dart';
 import 'search/search_page.dart';
@@ -344,18 +346,33 @@ class _StudentDashboardState extends State<StudentDashboard>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      bottomNavigationBar: _buildBottomNav(),
-      body: SafeArea(
-        child: IndexedStack(
-          index: _selectedIndex,
-          children: [
-            _buildHomeBody(),
-            const SearchPage(),
-            const ApplicationsPage(),
-            const ProfilePage(),
-          ],
-        ),
+      backgroundColor: AppColors.background,
+      extendBody: true, // Required for FloatingNavBar
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: [
+                _buildHomeBody(),
+                const SearchPage(),
+                const ApplicationsPage(),
+                const ProfilePage(),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: FloatingNavBar(
+              selectedIndex: _selectedIndex,
+              onItemSelected: (i) => setState(() => _selectedIndex = i),
+              hasNotifications: _appliedInternshipIds.isNotEmpty,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -675,10 +692,10 @@ class _StudentDashboardState extends State<StudentDashboard>
             const SizedBox(height: 24),
             Text(
               'No internships found',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
@@ -687,8 +704,8 @@ class _StudentDashboardState extends State<StudentDashboard>
                   ? 'New opportunities are added daily. Check back soon!'
                   : 'Try changing your filter to see more results.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade600,
+              style: GoogleFonts.inter(
+                color: AppColors.textBody,
               ),
             ),
             const SizedBox(height: 24),
@@ -711,16 +728,18 @@ class _StudentDashboardState extends State<StudentDashboard>
         children: [
           Text(
             'Recommended for You',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            style: GoogleFonts.poppins(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
+              color: AppColors.textDark,
             ),
           ),
           if (!_isLoading && _internships.isNotEmpty)
             Text(
               '${_internships.length} found',
-              style: TextStyle(
-                color: Colors.grey.shade600,
+              style: GoogleFonts.inter(
+                color: AppColors.textBody,
                 fontSize: 14,
               ),
             ),
@@ -748,24 +767,17 @@ class _StudentDashboardState extends State<StudentDashboard>
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.deepGreen : Colors.white,
+          color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isSelected ? AppColors.deepGreen : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : AppColors.textBody.withValues(alpha: 0.2),
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: AppColors.deepGreen.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ] : null,
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textGrey,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          style: GoogleFonts.inter(
+            color: isSelected ? Colors.white : AppColors.textBody,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ),
@@ -782,22 +794,22 @@ class _StudentDashboardState extends State<StudentDashboard>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: AppColors.textBody.withValues(alpha: 0.1)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
-                offset: const Offset(0, 2),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Row(
             children: [
-              Icon(Icons.search, color: Colors.grey.shade500),
+              const Icon(Icons.search, color: AppColors.textBody),
               const SizedBox(width: 12),
               Text(
                 'Search roles, skills, companies...',
-                style: TextStyle(
+                style: GoogleFonts.inter(
                   color: Colors.grey.shade500,
                   fontSize: 16,
                 ),
@@ -809,70 +821,4 @@ class _StudentDashboardState extends State<StudentDashboard>
     );
   }
 
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (i) => setState(() => _selectedIndex = i),
-        selectedItemColor: AppColors.deepGreen,
-        unselectedItemColor: AppColors.textGrey,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: [
-                const Icon(Icons.assignment_outlined),
-                if (_appliedInternshipIds.isNotEmpty)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 12,
-                        minHeight: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            activeIcon: const Icon(Icons.assignment),
-            label: 'Applications',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -12,6 +12,11 @@ const {
     normalizeInternshipForFlutter,
 } = require('../utils/flutterDataNormalizer');
 
+// ── Python AI Microservice Client ──
+const {
+    getAIRecommendations,
+} = require('../utils/aiServiceClient');
+
 /**
  * ============================================================
  * PUBLIC: Get All Active Internships
@@ -36,6 +41,9 @@ exports.getAllInternshipsPublic = async (req, res) => {
  * ============================================================
  * STUDENT: Get AI-Recommended Internships
  * ============================================================
+ * Uses Python AI microservice (SentenceTransformer) as PRIMARY ranker.
+ * Falls back to Jaccard-based matcher if the Python service is unavailable.
+ * 
  * @route   GET /api/internships/recommendations
  * @access  Private (Student)
  */
@@ -59,11 +67,10 @@ exports.getRecommendedInternships = async (req, res) => {
         }
 
         if (location) {
-            // Search in city, country, or legacy string location
             query.$or = [
                 { 'location.city': { $regex: location, $options: 'i' } },
                 { 'location.country': { $regex: location, $options: 'i' } },
-                { location: { $regex: location, $options: 'i' } } // Fallback for any string formats
+                { location: { $regex: location, $options: 'i' } }
             ];
         }
 
@@ -72,7 +79,6 @@ exports.getRecommendedInternships = async (req, res) => {
         }
 
         if (duration) {
-            // Match against duration value (if number) or displayString
             if (!isNaN(duration)) {
                 query['duration.value'] = Number(duration);
             } else {
@@ -83,23 +89,24 @@ exports.getRecommendedInternships = async (req, res) => {
         // 3️⃣ Fetch internships
         const internships = await Internship.find(query).populate('company');
 
-        // 4️⃣ Load AI config
-        const aiConfig = await AIConfig.findOne();
-        const weights = aiConfig?.weights || DEFAULT_WEIGHTS;
+        // 4️⃣ Try Python AI Service first, fallback to Jaccard
+        const jaccardFallback = (studentProfile, internshipList) => {
+            const aiConfig = null; // Already loaded above if needed
+            return rankInternshipsForStudent(studentProfile, internshipList, DEFAULT_WEIGHTS);
+        };
 
-        // 5️⃣ Rank internships using AI
-        let rankedInternships = rankInternshipsForStudent(
+        let rankedInternships = await getAIRecommendations(
             student,
             internships,
-            weights
+            jaccardFallback
         );
 
-        // FALLBACK: If AI ranking filters everything out or is empty, return active internships
+        // 5️⃣ FALLBACK: If ranking returns empty, return active internships
         if (rankedInternships.length === 0) {
             const allActive = await Internship.find({ isActive: true }).sort({ createdAt: -1 }).limit(20).populate('company');
             rankedInternships = allActive.map(i => ({
                 ...i.toObject(),
-                matchPercentage: 70, // Default generous match score for fallback
+                matchPercentage: 70,
                 matchScore: 70
             }));
         }

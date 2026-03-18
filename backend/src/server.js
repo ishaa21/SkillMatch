@@ -56,6 +56,11 @@ app.use(express.json({ limit: '10kb' }));
 app.use(mongoSanitize());
 app.use(hpp());
 
+// ===== Rate Limiting & Proxy =====
+// Trust the first proxy in front of Express (Render, Heroku, Nginx, etc.)
+// This prevents the 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR' exception and allows accurate IP rate limiting.
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000,
     max: 1000,

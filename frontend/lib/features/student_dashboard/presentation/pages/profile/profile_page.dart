@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../../core/theme/app_theme.dart';
 import 'add_skill_modal.dart';
 import 'edit_profile_page.dart';
@@ -11,6 +12,7 @@ import '../../../../../core/constants/api_constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../saved_internships_page.dart';
+import '../../../../../core/widgets/match_score_ring.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -145,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                   Text('Resume uploaded successfully!'),
                 ],
               ),
-              backgroundColor: AppColors.deepGreen,
+              backgroundColor: AppColors.primary,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
@@ -196,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('$skillName added with $proficiency level!'),
-                  backgroundColor: AppColors.deepGreen,
+                  backgroundColor: AppColors.primary,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -217,8 +219,8 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Remove Skill'),
-        content: Text('Are you sure you want to remove "${skill['name']}"?'),
+        title: Text('Remove Skill', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text('Are you sure you want to remove "${skill['name']}"?', style: GoogleFonts.inter()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -226,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Remove'),
           ),
         ],
@@ -273,15 +275,12 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
     super.build(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Profile'),
-        backgroundColor: Colors.white,
+        title: Text('My Profile', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, letterSpacing: -0.5, color: AppColors.textDark)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
@@ -302,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
       ),
       body: RefreshIndicator(
         onRefresh: _fetchProfile,
-        color: AppColors.deepGreen,
+        color: AppColors.primary,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _hasError
@@ -321,16 +320,16 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
           const SizedBox(height: 16),
           Text(
             'Failed to load profile',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Please check your connection and try again',
-            style: TextStyle(color: Colors.grey.shade600),
+            style: GoogleFonts.inter(color: AppColors.textBody),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -376,11 +375,12 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -389,16 +389,16 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.bookmark, color: AppColors.primary),
+                child: const Icon(Icons.bookmark_border, color: AppColors.primary),
               ),
-              title: const Text(
+              title: Text(
                 'Saved Internships',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16, color: AppColors.textDark),
               ),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textBody),
               onTap: () {
                 Navigator.push(
                   context,
@@ -411,7 +411,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
           // Resume Section
           _buildSection(
             title: 'Resume',
-            icon: Icons.description_outlined,
+            icon: Icons.file_present_outlined,
             trailing: TextButton.icon(
               onPressed: _isLoading ? null : _updateResume,
               icon: const Icon(Icons.upload_file, size: 18),
@@ -457,8 +457,8 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
               icon: const Icon(Icons.logout),
               label: const Text('Logout'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+                foregroundColor: AppColors.error,
+                side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
@@ -475,11 +475,12 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -489,38 +490,27 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
             alignment: Alignment.center,
             children: [
               // Progress Ring
-              SizedBox(
-                width: 110,
-                height: 110,
-                child: CircularProgressIndicator(
-                  value: completionPercent / 100,
-                  strokeWidth: 4,
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    completionPercent < 50 
-                        ? Colors.orange 
-                        : completionPercent < 80 
-                            ? AppColors.mediumGreen 
-                            : AppColors.deepGreen,
-                  ),
-                ),
-              ),
+              MatchScoreRing(score: completionPercent, size: 110),
               // Avatar
               GestureDetector(
                 onTap: _navigateToEditProfile,
                 child: Stack(
                   children: [
                     CircleAvatar(
-                      radius: 48,
-                      backgroundColor: AppColors.primary,
-                      child: Text(
-                        _profileData?['fullName'] != null
-                            ? _profileData!['fullName'][0].toUpperCase()
-                            : 'S',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      radius: 46,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 42,
+                        backgroundColor: AppColors.background,
+                        child: Text(
+                          _profileData?['fullName'] != null
+                              ? _profileData!['fullName'][0].toUpperCase()
+                              : 'S',
+                          style: GoogleFonts.poppins(
+                            fontSize: 36,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -546,32 +536,33 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             _profileData?['fullName'] ?? 'Student Name',
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDark,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             '${_profileData?['university'] ?? 'University'} • ${_profileData?['degree'] ?? 'Degree'}',
-            style: TextStyle(
-              color: Colors.grey.shade600,
+            style: GoogleFonts.inter(
+              color: AppColors.textBody,
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
-          _buildCompletionBadge(completionPercent),
           if (_profileData?['bio'] != null && _profileData!['bio'].toString().isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
               _profileData!['bio'],
-              style: TextStyle(
-                color: Colors.grey.shade700,
+              style: GoogleFonts.inter(
+                color: AppColors.textBody,
                 fontSize: 14,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -591,16 +582,16 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
             icon: Icons.psychology_outlined,
             value: '${_skills.length}',
             label: 'Skills',
-            color: Colors.blue,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            icon: Icons.description_outlined,
+            icon: Icons.file_present_outlined,
             value: _profileData?['resumeUrl'] != null ? '1' : '0',
             label: 'Resume',
-            color: Colors.green,
+            color: AppColors.accent,
           ),
         ),
         const SizedBox(width: 12),
@@ -609,7 +600,7 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
             icon: Icons.school_outlined,
             value: _profileData?['graduationYear']?.toString() ?? '—',
             label: 'Grad Year',
-            color: Colors.orange,
+            color: AppColors.secondary,
           ),
         ),
       ],

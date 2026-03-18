@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/smooth_card.dart';
+import '../../../../core/widgets/match_score_ring.dart';
 
 class EnhancedInternshipCard extends StatelessWidget {
   final Map<String, dynamic> internship;
@@ -20,53 +23,43 @@ class EnhancedInternshipCard extends StatelessWidget {
     final companyName = _getCompanyName();
     final stipendAmount = _getStipend();
     final isRemote = (internship['workMode'] ?? '') == 'Remote';
+    
+    // Parse the new AI score from aiServiceClient
+    final score = num.tryParse(internship['matchScore']?.toString() ?? '0')?.toInt() ?? 0;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isApplied ? AppColors.mediumTeal.withOpacity(0.3) : Colors.transparent,
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.deepGreen.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
+      child: SmoothCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(0),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Company Logo
+                  // Company Logo / Avater
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
-                      color: AppColors.softMint,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
                     ),
                     child: Center(
                       child: Text(
                         companyName.isNotEmpty ? companyName[0].toUpperCase() : 'C',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.deepGreen,
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   
                   // Main Info
                   Expanded(
@@ -75,10 +68,11 @@ class EnhancedInternshipCard extends StatelessWidget {
                       children: [
                         Text(
                           internship['title']?.toString() ?? 'Role',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textDark,
+                            letterSpacing: -0.3,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -86,48 +80,44 @@ class EnhancedInternshipCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           companyName,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textGrey,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.textBody,
                             fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         
-                        // Metadata Row
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              _buildDotInfo(internship['workMode']?.toString() ?? 'Remote'),
-                              const SizedBox(width: 4),
-                              _buildDot(),
-                              const SizedBox(width: 4),
-                              _buildDotInfo(_getDuration()),
-                              const SizedBox(width: 4),
-                              if (isRemote) ...[
-                                _buildDot(),
-                                const SizedBox(width: 4),
-                                _buildDotInfo('Remote'),
-                              ]
-                            ],
-                          ),
+                        // Metadata Tags
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _buildTag(internship['workMode']?.toString() ?? 'Remote', Icons.work_outline),
+                            _buildTag(_getDuration(), Icons.access_time),
+                          ],
                         ),
                       ],
                     ),
                   ),
+                  
+                  // AI Match Score
+                  if (internship['aiService'] == true) ...[
+                    const SizedBox(width: 12),
+                    MatchScoreRing(score: score, size: 48),
+                  ]
                 ],
               ),
             ),
             
             // Divider
-            Divider(height: 1, color: Colors.grey.shade100),
+            Divider(height: 1, color: AppColors.textBody.withValues(alpha: 0.1)),
             
             // Footer: Stipend & Action
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -137,16 +127,16 @@ class EnhancedInternshipCard extends StatelessWidget {
                     children: [
                       Text(
                         'Stipend',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: AppColors.textBody.withValues(alpha: 0.7),
                         ),
                       ),
                       Text(
                         stipendAmount,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textDark,
                         ),
                       ),
@@ -155,23 +145,23 @@ class EnhancedInternshipCard extends StatelessWidget {
                   
                   // Apply Button
                   SizedBox(
-                    height: 36,
+                    height: 42,
                     child: ElevatedButton(
                       onPressed: isApplied ? null : onApply,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isApplied ? Colors.grey.shade100 : AppColors.deepGreen,
-                        foregroundColor: isApplied ? Colors.grey : Colors.white,
-                        elevation: isApplied ? 0 : 2,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        backgroundColor: isApplied ? AppColors.background : AppColors.primary,
+                        foregroundColor: isApplied ? AppColors.textBody : Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: Text(
                         isApplied ? 'Applied' : 'Apply Now',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -185,32 +175,34 @@ class EnhancedInternshipCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDotInfo(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        color: AppColors.textGrey,
-      ),
-    );
-  }
-
-  Widget _buildDot() {
+  Widget _buildTag(String text, IconData icon) {
     return Container(
-      width: 3,
-      height: 3,
-      decoration: const BoxDecoration(
-        color: Colors.grey,
-        shape: BoxShape.circle,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textBody),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textBody,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   String _getCompanyName() {
     try {
-      // Check root level first (Normalized)
       if (internship['companyName'] != null) return internship['companyName'].toString();
-
       if (internship['companyDetails'] != null && internship['companyDetails'] is Map) {
         return internship['companyDetails']['companyName']?.toString() ?? 'Company';
       }
@@ -227,13 +219,7 @@ class EnhancedInternshipCard extends StatelessWidget {
   String _getStipend() {
     try {
       var stipend = internship['stipend'];
-      
-      // Fallback for normalized data that might have just an amount or different structure?
-      // Actually normalized data sends a Map.
-      
       if (stipend == null) return 'Unpaid';
-      
-      // Expected structure: {min, max, currency, period}
       if (stipend is Map) {
         final min = num.tryParse(stipend['min']?.toString() ?? '0') ?? 0;
         final max = num.tryParse(stipend['max']?.toString() ?? '0') ?? 0;
@@ -241,13 +227,9 @@ class EnhancedInternshipCard extends StatelessWidget {
         final period = stipend['period'] == 'Month' ? 'mo' : 'yr';
 
         if (min <= 0 && max <= 0) return 'Unpaid';
-
-        if (min == max) {
-          return '$currency$min/$period';
-        }
+        if (min == max) return '$currency$min/$period';
         return '$currency$min - $currency$max / $period';
       }
-      
       return 'Unpaid';
     } catch (e) {
       return 'Unpaid';

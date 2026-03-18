@@ -1,0 +1,26 @@
+# ──────────────────────────────────────────
+# SkillMatch AI Service — Python Dependencies
+# ──────────────────────────────────────────
+
+# FastAPI & Server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# ML & NLP
+sentence-transformers==3.3.1
+scikit-learn==1.6.1
+numpy==2.2.1
+torch==2.5.1
+
+# Observability & Caching
+python-json-logger==2.0.7
+cachetools==5.3.3
+
+# HTTP & Utils
+httpx==0.28.1
+python-dotenv==1.0.1
+
+# Production
+gunicorn==23.0.0

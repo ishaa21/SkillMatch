@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/constants/api_constants.dart';
 import '../../../../../core/utils/dio_client.dart';
@@ -87,29 +88,28 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Applications'),
-        backgroundColor: Colors.white,
+        title: Text('My Applications', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, letterSpacing: -0.5, color: AppColors.textDark)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Container(
-            color: Colors.white,
+            color: Colors.transparent,
             child: TabBar(
               controller: _tabController,
-              labelColor: AppColors.deepGreen,
-              unselectedLabelColor: Colors.grey.shade500,
-              indicatorColor: AppColors.deepGreen,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textBody.withValues(alpha: 0.6),
+              indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               indicatorPadding: const EdgeInsets.symmetric(horizontal: 2),
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 13),
+              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+              unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
               tabs: [
                 Tab(text: 'All ($_totalApplications)'),
                 Tab(text: 'Pending ($_pendingCount)'),
@@ -333,13 +333,14 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
     final appliedDate = _formatDate(app['createdAt'] ?? app['appliedAt']);
     
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -347,9 +348,9 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           onTap: () => _showApplicationDetails(app),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -365,26 +366,22 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.deepGreen.withOpacity(0.1),
-                            AppColors.mediumGreen.withOpacity(0.1),
-                          ],
-                        ),
+                        color: AppColors.background,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
                       ),
                       child: Center(
                         child: Text(
                           companyName.isNotEmpty ? companyName[0].toUpperCase() : 'C',
-                          style: TextStyle(
-                            color: AppColors.deepGreen,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primary,
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     // Title and Company
                     Expanded(
                       child: Column(
@@ -392,9 +389,11 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
                               fontSize: 16,
+                              color: AppColors.textDark,
+                              letterSpacing: -0.3,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -402,14 +401,16 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                           const SizedBox(height: 4),
                           Text(
                             companyName,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
+                            style: GoogleFonts.inter(
+                              color: AppColors.textBody,
                               fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
                     // Status Badge
                     _buildStatusBadge(status),
                   ],
@@ -418,13 +419,13 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                 // Applied Date
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
+                    const Icon(Icons.calendar_today, size: 14, color: AppColors.textBody),
                     const SizedBox(width: 6),
                     Text(
                       'Applied on $appliedDate',
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: Colors.grey.shade500,
+                        color: AppColors.textBody,
                       ),
                     ),
                   ],
@@ -520,17 +521,17 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.red.shade50,
+          color: AppColors.error.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(Icons.info_outline, color: Colors.red.shade400, size: 18),
+            Icon(Icons.info_outline, color: AppColors.error, size: 18),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'This application was not selected. Keep trying!',
-                style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                style: GoogleFonts.inter(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -557,8 +558,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     gradient: isActive
-                        ? LinearGradient(
-                            colors: [AppColors.deepGreen, AppColors.mediumGreen],
+                        ? const LinearGradient(
+                            colors: [AppColors.primary, AppColors.secondary],
                           )
                         : null,
                     color: isActive ? null : Colors.grey.shade200,
@@ -584,8 +585,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                         height: isCurrent ? 24 : 20,
                         decoration: BoxDecoration(
                           gradient: isActive
-                              ? LinearGradient(
-                                  colors: [AppColors.deepGreen, AppColors.mediumGreen],
+                              ? const LinearGradient(
+                                  colors: [AppColors.primary, AppColors.secondary],
                                 )
                               : null,
                           color: isActive ? null : Colors.grey.shade200,
@@ -593,7 +594,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                           boxShadow: isCurrent
                               ? [
                                   BoxShadow(
-                                    color: AppColors.deepGreen.withOpacity(0.3),
+                                    color: AppColors.primary.withValues(alpha: 0.3),
                                     blurRadius: 6,
                                     spreadRadius: 1,
                                   ),
@@ -610,13 +611,13 @@ class _ApplicationsPageState extends State<ApplicationsPage> with SingleTickerPr
                               : null,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         displaySteps[stepIndex],
-                        style: TextStyle(
-                          fontSize: 8,
-                          color: isActive ? AppColors.deepGreen : Colors.grey.shade500,
-                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: isActive ? AppColors.primary : AppColors.textBody,
+                          fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
                         ),
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,

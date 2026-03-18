@@ -57,7 +57,7 @@ exports.register = async (req, res) => {
                     user: user._id,
                     fullName: profileData.fullName || 'New Student',
                     skills: [],
-                    education: '',
+                    education: [],
                     experience: []
                 });
             } else if (role === 'company') {

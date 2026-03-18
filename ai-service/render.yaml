@@ -1,0 +1,34 @@
+# ──────────────────────────────────────────
+# Render Blueprint — SkillMatch AI Service
+# ──────────────────────────────────────────
+# Drop this file in the repo root.
+# Render auto-detects it and creates services from it.
+
+services:
+  - type: web
+    name: skillmatch-ai-service
+    runtime: python
+    region: oregon
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120 --access-logfile -
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MODEL_NAME
+        value: all-MiniLM-L6-v2
+      - key: WEIGHT_SKILLS
+        value: "0.40"
+      - key: WEIGHT_RESUME
+        value: "0.30"
+      - key: WEIGHT_DOMAIN
+        value: "0.15"
+      - key: WEIGHT_LOCATION
+        value: "0.15"
+      - key: PYTHON_VERSION
+        value: "3.11.7"

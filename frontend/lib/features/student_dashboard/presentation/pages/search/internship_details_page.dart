@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/constants/api_constants.dart';
 import '../../../../../core/constants/asset_constants.dart';
 import '../../../../../core/utils/dio_client.dart';
+import '../../../../../core/widgets/match_score_ring.dart';
+import '../../../../../core/widgets/animated_fade_in.dart';
+import '../../../../../core/widgets/premium_glass_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -157,7 +161,7 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
                 errorBuilder: (_, __, ___) => const Icon(
                   Icons.check_circle,
                   size: 100,
-                  color: AppColors.deepGreen,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -166,7 +170,7 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.deepGreen,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -213,7 +217,7 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isSaved ? 'Saved to bookmarks' : 'Removed from bookmarks'),
-            backgroundColor: AppColors.deepGreen,
+            backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 1),
           ),
@@ -241,8 +245,8 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.deepGreen,
-                  AppColors.mediumGreen.withOpacity(0.9),
+                  AppColors.primary,
+                  AppColors.secondary.withOpacity(0.9),
                 ],
               ),
             ),
@@ -310,266 +314,311 @@ class _InternshipDetailsPageState extends State<InternshipDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Company Logo & Basic Info
-                          Center(
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        AppColors.deepGreen,
-                                        AppColors.mediumGreen,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.deepGreen.withOpacity(0.3),
-                                        blurRadius: 15,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      companyName.isNotEmpty ? companyName[0].toUpperCase() : 'C',
-                                      style: const TextStyle(
-                                        fontSize: 36,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  widget.internship['title']?.toString() ?? 'Internship Role',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  companyName,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                
-                                // Match Badge
-                                if (matchPercentage > 0)
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 100),
+                            child: Center(
+                              child: Column(
+                                children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    width: 80,
+                                    height: 80,
                                     decoration: BoxDecoration(
-                                      color: _getMatchColor(matchPercentage).withOpacity(0.1),
+                                      color: AppColors.background,
                                       borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.stars,
-                                          size: 18,
-                                          color: _getMatchColor(matchPercentage),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          '$matchPercentage% Match',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: _getMatchColor(matchPercentage),
-                                          ),
+                                      border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary.withValues(alpha: 0.05),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 8),
                                         ),
                                       ],
                                     ),
+                                    child: Center(
+                                      child: Text(
+                                        companyName.isNotEmpty ? companyName[0].toUpperCase() : 'C',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                              ],
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    widget.internship['title']?.toString() ?? 'Internship Role',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textDark,
+                                      letterSpacing: -0.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    companyName,
+                                    style: GoogleFonts.inter(
+                                      color: AppColors.textBody,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  
+                                  // AI Match Overview & Explanation
+                                  if (matchPercentage > 0)
+                                    PremiumGlassContainer(
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          MatchScoreRing(score: matchPercentage is num ? matchPercentage.toInt() : int.tryParse(matchPercentage.toString()) ?? 0, size: 60),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.psychology_outlined, color: AppColors.accent, size: 18),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      'AI Overview',
+                                                      style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.accent, fontSize: 13),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  widget.internship['explanation']?.toString() ?? 'Good match based on your profile skills and preferences.',
+                                                  style: GoogleFonts.inter(
+                                                    color: AppColors.textBody,
+                                                    fontSize: 13,
+                                                    height: 1.5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 32),
                           
                           // Key Details - Responsive layout
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                // Use scroll on smaller screens
-                                if (constraints.maxWidth < 320) {
-                                  return SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        _buildDetailItem(
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 200),
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  // Use scroll on smaller screens
+                                  if (constraints.maxWidth < 320) {
+                                    return SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          _buildDetailItem(
+                                            Icons.location_on_outlined,
+                                            widget.internship['workMode']?.toString() ?? 'Remote',
+                                            'Work Mode',
+                                          ),
+                                          const SizedBox(width: 16),
+                                          _buildDivider(),
+                                          const SizedBox(width: 16),
+                                          _buildDetailItem(
+                                            Icons.schedule_outlined,
+                                            _getDuration(),
+                                            'Duration',
+                                          ),
+                                          const SizedBox(width: 16),
+                                          _buildDivider(),
+                                          const SizedBox(width: 16),
+                                          _buildDetailItem(
+                                            Icons.payments_outlined,
+                                            '${_getFormattedStipend()}/mo',
+                                            'Stipend',
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  // Normal layout for larger screens
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Flexible(
+                                        child: _buildDetailItem(
                                           Icons.location_on_outlined,
                                           widget.internship['workMode']?.toString() ?? 'Remote',
                                           'Work Mode',
                                         ),
-                                        const SizedBox(width: 16),
-                                        _buildDivider(),
-                                        const SizedBox(width: 16),
-                                        _buildDetailItem(
+                                      ),
+                                      _buildDivider(),
+                                      Flexible(
+                                        child: _buildDetailItem(
                                           Icons.schedule_outlined,
                                           _getDuration(),
                                           'Duration',
                                         ),
-                                        const SizedBox(width: 16),
-                                        _buildDivider(),
-                                        const SizedBox(width: 16),
-                                        _buildDetailItem(
+                                      ),
+                                      _buildDivider(),
+                                      Flexible(
+                                        child: _buildDetailItem(
                                           Icons.payments_outlined,
                                           '${_getFormattedStipend()}/mo',
                                           'Stipend',
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   );
-                                }
-                                // Normal layout for larger screens
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Flexible(
-                                      child: _buildDetailItem(
-                                        Icons.location_on_outlined,
-                                        widget.internship['workMode']?.toString() ?? 'Remote',
-                                        'Work Mode',
-                                      ),
-                                    ),
-                                    _buildDivider(),
-                                    Flexible(
-                                      child: _buildDetailItem(
-                                        Icons.schedule_outlined,
-                                        _getDuration(),
-                                        'Duration',
-                                      ),
-                                    ),
-                                    _buildDivider(),
-                                    Flexible(
-                                      child: _buildDetailItem(
-                                        Icons.payments_outlined,
-                                        '${_getFormattedStipend()}/mo',
-                                        'Stipend',
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(height: 32),
 
                           // About Section
-                          _buildSectionTitle('About the Role'),
-                          const SizedBox(height: 12),
-                          Text(
-                            widget.internship['description']?.toString() ?? 
-                                'Join our dynamic team and work on exciting projects that make a real impact. You will collaborate with experienced professionals and gain valuable industry experience.',
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              height: 1.6,
-                              fontSize: 15,
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 300),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionTitle('About the Role'),
+                                const SizedBox(height: 12),
+                                Text(
+                                  widget.internship['description']?.toString() ?? 
+                                      'Join our dynamic team and work on exciting projects that make a real impact. You will collaborate with experienced professionals and gain valuable industry experience.',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    height: 1.6,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 28),
 
                           // Responsibilities
-                          _buildSectionTitle('Responsibilities'),
-                          const SizedBox(height: 12),
-                          ..._buildResponsibilities(),
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 400),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionTitle('Responsibilities'),
+                                const SizedBox(height: 12),
+                                ..._buildResponsibilities(),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 28),
 
                           // Skills Section
-                          _buildSectionTitle('Skills Required'),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: skills.map<Widget>((skill) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.2),
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 500),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionTitle('Skills Required'),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: skills.map<Widget>((skill) => Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColors.primary.withOpacity(0.2),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      skill,
+                                      style: const TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  )).toList(),
                                 ),
-                              ),
-                              child: Text(
-                                skill,
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            )).toList(),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 28),
 
                           // Company Info
-                          _buildSectionTitle('About the Company'),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
+                          AnimatedFadeIn(
+                            delay: const Duration(milliseconds: 600),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                _buildSectionTitle('About the Company'),
+                                const SizedBox(height: 12),
                                 Container(
-                                  width: 50,
-                                  height: 50,
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withOpacity(0.1),
+                                    color: Colors.grey.shade50,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      companyName.isNotEmpty ? companyName[0] : 'C',
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        companyName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                      Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            companyName.isNotEmpty ? companyName[0] : 'C',
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                      Text(
-                                        'Technology & Software',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 13,
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              companyName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Technology & Software',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: const Text('View'),
                                       ),
                                     ],
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Text('View'),
                                 ),
                               ],
                             ),
